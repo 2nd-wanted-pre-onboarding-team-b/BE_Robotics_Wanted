@@ -99,6 +99,9 @@ def sb_partysize_validator(func):
     """
         인원 집계 함수 작동 시
         parameter 유효성 판별 함수
+
+        필요한 param 없을 경우 TypeError
+        validator에 Failed 했을 경우 ValueError
     """
     MUST_NEED_PARAMS = {"time_range", "time_size"}
     def wrapper(**kwargs):

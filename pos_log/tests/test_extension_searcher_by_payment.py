@@ -15,7 +15,7 @@ def check_validate(c: CustomedAPITestCase, time_range, time_size,
     
     try:
         # 테스트 실행
-        output = ExtensionLogSearcher.search_by_payment(
+        ExtensionLogSearcher.search_by_payment(
             time_range          = time_range, 
             time_size           = time_size, 
             price_range         = price_range,

@@ -1,6 +1,9 @@
 from datetime import datetime
-from typing import Optional, Tuple, Set, Dict, Callable
+from typing import Set, Dict, Callable, Sequence
 
+"""
+    Writer: 하정현
+"""
 
 class ExtensionLogSearcherValidator:
     """
@@ -13,22 +16,44 @@ class ExtensionLogSearcherValidator:
     """
     TIME_SIZE: Set[str] = {'HOUR', 'DAY', 'WEEK', 'MONTH', 'YEAR'}
 
-
     @staticmethod
-    def time_range_validator(time_range: Tuple[datetime, datetime]) -> bool:
-        return True
+    def time_range_validator(time_range: Sequence[datetime]) -> bool:
+        if not time_range:
+            # 없으면 안됨
+            return False
+        if len(time_range) != 2:
+            # start, end 두개가 아니면 안됨
+            return False
+        start, end = time_range
+        # end가 start보다 시간순으로 뒤거나 같게 나와야 한다
+        return start <= end
 
     @staticmethod
     def time_size_validator(time_size: str) -> bool:
-        return True
+        return time_size and time_size in ExtensionLogSearcherValidator.TIME_SIZE
 
     @staticmethod
-    def price_range_validator(price_range: Tuple[int, int]) -> bool:
-        return True
+    def price_range_validator(price_range: Sequence[int]) -> bool:
+        if not price_range:
+            # 없어도 됨
+            return True
+        if len(price_range) != 2:
+            # start, end 두개가 아니면 안됨
+            return False
+        start, end = price_range
+        # start가 항상 작아야 됨
+        return 0 <= start <= end
 
     @staticmethod
-    def party_size_validator(party_size: Tuple[int, int]) -> bool:
-        return True
+    def party_size_validator(party_size: Sequence[int]) -> bool:
+        if not party_size:
+            return True
+        if len(party_size) != 2:
+            # start, end 두개가 아니면 안됨
+            return False
+        start, end = party_size
+        # start가 항상 작아야 됨
+        return 0 <= start <= end
 
     @staticmethod
     def restaurant_group_validator(res_group: str) -> bool:

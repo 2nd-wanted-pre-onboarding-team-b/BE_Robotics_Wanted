@@ -14,7 +14,7 @@
         {
             "topic": "time data start, end가 뒤집어짐",
             "input": {
-                "time_range": ["2021-09-01 02:00:00", "2022-08-01 01:00:00"],
+                "time_range": ["2022-09-01 02:00:00", "2022-08-01 01:00:00"],
                 "time_size": "HOUR",
                 "price_range": [3000, 4000],
                 "party_size": [4,5],
@@ -25,7 +25,7 @@
         {
             "topic": "time size 없음",
             "input": {
-                "time_range": ["2022-08-01 01:00:00", "2021-09-01 02:00:00"],
+                "time_range": ["2022-08-01 01:00:00", "2022-09-01 02:00:00"],
                 "time_size": null,
                 "price_range": [3000, 4000],
                 "party_size": [4,5],
@@ -36,7 +36,7 @@
         {
             "topic": "time size format 틀림",
             "input": {
-                "time_range": ["2022-08-01 01:00:00", "2021-09-01 02:00:00"],
+                "time_range": ["2022-08-01 01:00:00", "2022-09-01 02:00:00"],
                 "time_size": "ssss",
                 "price_range": [3000, 4000],
                 "party_size": [4,5],
@@ -47,7 +47,7 @@
         {
             "topic": "price range 역전됨",
             "input": {
-                "time_range": ["2022-08-01 01:00:00", "2021-09-01 02:00:00"],
+                "time_range": ["2022-08-01 01:00:00", "2022-09-01 02:00:00"],
                 "time_size": "HOUR",
                 "price_range": [4000, 3000],
                 "party_size": [4,5],
@@ -58,7 +58,7 @@
         {
             "topic": "price range 없어도 됨",
             "input": {
-                "time_range": ["2022-08-01 01:00:00", "2021-09-01 02:00:00"],
+                "time_range": ["2022-08-01 01:00:00", "2022-09-01 02:00:00"],
                 "time_size": "HOUR",
                 "price_range": null,
                 "party_size": [4,5],
@@ -69,7 +69,7 @@
         {
             "topic": "price range 음수 사용 불가",
             "input": {
-                "time_range": ["2022-08-01 01:00:00", "2021-09-01 02:00:00"],
+                "time_range": ["2022-08-01 01:00:00", "2022-09-01 02:00:00"],
                 "time_size": "HOUR",
                 "price_range": [-3000, -300],
                 "party_size": [4,5],
@@ -80,7 +80,7 @@
         {
             "topic": "party size 없어도 됨",
             "input": {
-                "time_range": ["2022-08-01 01:00:00", "2021-09-01 02:00:00"],
+                "time_range": ["2022-08-01 01:00:00", "2022-09-01 02:00:00"],
                 "time_size": "HOUR",
                 "price_range": [300, 4000],
                 "party_size": null,
@@ -91,7 +91,7 @@
         {
             "topic": "party size 역전됨",
             "input": {
-                "time_range": ["2022-08-01 01:00:00", "2021-09-01 02:00:00"],
+                "time_range": ["2022-08-01 01:00:00", "2022-09-01 02:00:00"],
                 "time_size": "HOUR",
                 "price_range": [300, 4000],
                 "party_size": [5,4],
@@ -102,7 +102,7 @@
         {
             "topic": "party size 음수 사용 불가",
             "input": {
-                "time_range": ["2022-08-01 01:00:00", "2021-09-01 02:00:00"],
+                "time_range": ["2022-08-01 01:00:00", "2022-09-01 02:00:00"],
                 "time_size": "HOUR",
                 "price_range": [300, 4000],
                 "party_size": [-3, -1],
@@ -113,7 +113,7 @@
         {
             "topic": "restaurant_group 없어도 됨",
             "input": {
-                "time_range": ["2022-08-01 01:00:00", "2021-09-01 02:00:00"],
+                "time_range": ["2022-08-01 01:00:00", "2022-09-01 02:00:00"],
                 "time_size": "HOUR",
                 "price_range": [300, 4000],
                 "party_size": [1,3],

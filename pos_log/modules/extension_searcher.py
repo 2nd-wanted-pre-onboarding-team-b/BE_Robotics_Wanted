@@ -1,4 +1,4 @@
-from typing import Optional, Tuple, Dict, Set
+from typing import Optional, Sequence, Dict, Set
 from datetime import datetime
 from pos_log.modules.extension_searcher_validator import *
 
@@ -13,10 +13,10 @@ class ExtensionLogSearcher:
     @staticmethod
     @sb_payment_validator
     def search_by_payment(
-        time_range  : Tuple[datetime, datetime],
+        time_range  : Sequence[datetime],
         time_size   : str,
-        price_range : Optional[Tuple[int, int]] = None,
-        party_size  : Optional[Tuple[int, int]] = None,
+        price_range : Optional[Sequence[int]] = None,
+        party_size  : Optional[Sequence[int]] = None,
         restaurant_group    : Optional[str] = None
     ) -> Dict[str, object]:
         """
@@ -49,10 +49,10 @@ class ExtensionLogSearcher:
     @staticmethod
     @sb_partysize_validator
     def search_by_party(
-        time_range  : Tuple[datetime, datetime],
+        time_range  : Sequence[datetime],
         time_size   : str,
-        price_range : Optional[Tuple[int, int]] = None,
-        party_size  : Optional[Tuple[int, int]] = None,
+        price_range : Optional[Sequence[int]] = None,
+        party_size  : Optional[Sequence[int]] = None,
         restaurant_group    : Optional[str] = None
     ) -> Dict[str, object]:
         """

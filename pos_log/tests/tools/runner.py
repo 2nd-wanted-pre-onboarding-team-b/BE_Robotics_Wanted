@@ -1,9 +1,11 @@
 from pos_log.tests.tools.customed_api_testcase import CustomedAPITestCase
 from typing import Callable, Iterable, Dict, List
 from collections import deque
-from rest_framework.test import APITestCase
-
 import json
+
+"""
+    Writer: 하정현
+"""
 
 def validator_certain_type(t, a) -> Callable:
     if isinstance(a, Dict):
@@ -26,8 +28,11 @@ def test_runner(test_func : Callable):
             for case in cases:
                 # 테스트 케이스 마다 실행
                 topic, ipt, answer = case['topic'], case['input'], case['answer']
+
                 output = test_func(test_e, **ipt)
-                err_msg: str = f"\n\nIn Topic: {topic}\ninput: {ipt}\noutput: {output}\nbut answer: {answer}"
+                err_msg: str \
+                    = f"\n\nIn Topic: {topic}\ninput: {ipt}\noutput: {output}\nbut answer: {answer}"
+
                 validator_certain_type(test_e, answer)(answer, output, msg=err_msg)
             return func(test_e)
         return __wrapper

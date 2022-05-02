@@ -11,15 +11,8 @@ class ExtensionLogSearcherValidator:
         Model에서 컬럼 데이터에 대한 type 검사하는 validator와는 다른 개념으로
         함수 입장에서 들어오는 input data에 대한 검증을 한다.
     """
-    TIME_FORMAT: str = "%Y-%M-%d %h-%m-%s %f"
     TIME_SIZE: Set[str] = {'HOUR', 'DAY', 'WEEK', 'MONTH', 'YEAR'}
 
-    @staticmethod
-    def str2datetime(s: str) -> datetime:
-        # string -> datetime
-        if not s:
-            return None
-        return datetime.strptime(s, ExtensionLogSearcherValidator.TIME_FORMAT)
 
     @staticmethod
     def time_range_validator(time_range: Tuple[datetime, datetime]) -> bool:

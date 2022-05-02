@@ -32,6 +32,7 @@ class ExtensionLogSearcher:
             return:
                 Dict 형태의 결과값
                 Validate 실패 시 ValueError 호출
+                필요한 param 없을 시 TypeError 호출
         """
 
         """
@@ -67,6 +68,7 @@ class ExtensionLogSearcher:
             return:
                 Dict 형태의 결과값
                 Validate 실패 시 ValueError 호출
+                필요한 param 없을 시 TypeError 호출
         """
 
         

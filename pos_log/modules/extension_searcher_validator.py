@@ -17,6 +17,8 @@ class ExtensionLogSearcherValidator:
     @staticmethod
     def str2datetime(s: str) -> datetime:
         # string -> datetime
+        if not s:
+            return None
         return datetime.strptime(s, ExtensionLogSearcherValidator.TIME_FORMAT)
 
     @staticmethod

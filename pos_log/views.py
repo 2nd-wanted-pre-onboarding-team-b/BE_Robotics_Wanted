@@ -80,11 +80,8 @@ class PoslogListView(APIView):
         if max_party:
             q &= Q(number_of_party__lte=max_party)
         if group:
-            
             restaurant_group = Restaurant.objects.filter(Q(group_id = group)).values('id')
-
             q &= Q(restaurant__in=restaurant_group)
-
             pos_data = PosLog.objects.filter(q).values()
         
         time_form = {

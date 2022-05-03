@@ -1,0 +1,21 @@
+{
+    "case": [
+        {
+            "topic": "payment by HOUR",
+            "input": {
+                "start-time": "2022-01-10",
+                "end-time": "2023-05-25",
+                "timesize": "HOUR"
+            },
+            "answer": [
+                {"restaurant_id": 1, "payment": "CARD", "count": 2, "hour": "13"},
+                {"restaurant_id": 1, "payment": "BITCOIN", "count": 1, "hour": "16"},
+                {"restaurant_id": 1, "payment": "CASH", "count": 1, "hour": "20"},
+                {"restaurant_id": 2, "payment": "PHONE", "count": 1, "hour": "13"},
+                {"restaurant_id": 2, "payment": "CASH", "count": 1, "hour": "6"},
+                {"restaurant_id": 3, "payment": "CASH", "count": 1, "hour": "9"},
+                {"restaurant_id": 3, "payment": "BITCOIN", "count": 1, "hour": "10"}
+            ]
+        }
+    ]
+}

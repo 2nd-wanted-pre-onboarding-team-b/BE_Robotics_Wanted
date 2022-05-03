@@ -61,7 +61,7 @@ def check_result(c: CustomedAPITestCase, time_range, time_size,
             record4test: List[object] = [None] * 4
             for k,v in r.items():
                 if k == 'date':
-                    if time_size == 'DAY':
+                    if time_size == 'DAY' or time_size == 'WEEK':
                         v = f"{v.year}-{v.month}-{v.day}"
                     elif time_size == 'HOUR':
                         v = f"{v.hour}"
@@ -71,7 +71,6 @@ def check_result(c: CustomedAPITestCase, time_range, time_size,
                         v = f"{v.year}"
                 record4test[KEY2INDEX_MAP[k]] = v
             res4test.append(record4test)
-        print(res4test)
         return res4test
 
 class TestExtensionSearcherByPayment(CustomedAPITestCase):

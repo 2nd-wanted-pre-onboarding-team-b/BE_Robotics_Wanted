@@ -20,6 +20,25 @@
             ]
         },
         {
+            "topic": "payment by WEEK",
+            "input": {
+                "time_range": ["2022-01-10 00:00:00", "2023-05-24 23:59:59"],
+                "time_size": "WEEK",
+                "price_range": null,
+                "party_size": null,
+                "restaurant_group": null
+            },
+            "answer": [
+                ["2022-2-21", 1, "BITCOIN", 1],
+                ["2022-2-21", 1, "CARD", 2],
+                ["2023-4-17", 1, "CASH", 1],
+                ["2022-2-21", 2, "CASH", 1],
+                ["2022-2-21", 2, "PHONE", 1],
+                ["2022-2-21", 3, "CASH", 1],
+                ["2022-3-7", 3, "BITCOIN", 1]
+            ]
+        },
+        {
             "topic": "payment by HOUR",
             "input": {
                 "time_range": ["2022-01-10 00:00:00", "2023-05-24 23:59:59"],
@@ -74,6 +93,55 @@
                 ["2022", 2, "PHONE", 1],
                 ["2022", 3, "BITCOIN", 1],
                 ["2022", 3, "CASH", 1]
+            ]
+        },
+        {
+            "topic": "payment by DAY filtered by price",
+            "input": {
+                "time_range": ["2022-01-10 00:00:00", "2023-05-24 23:59:59"],
+                "time_size": "DAY",
+                "price_range": [3000,4000],
+                "party_size": null,
+                "restaurant_group": null
+            },
+            "answer": [
+                ["2022-2-23", 1, "BITCOIN", 1],
+                ["2022-2-23", 1, "CARD", 2],
+                ["2023-4-22", 1, "CASH", 1],
+                ["2022-2-23", 2, "PHONE", 1],
+                ["2022-2-24", 3, "CASH", 1],
+                ["2022-3-13", 3, "BITCOIN", 1]
+            ]
+        },
+        {
+            "topic": "payment by DAY filtered by party size",
+            "input": {
+                "time_range": ["2022-01-10 00:00:00", "2023-05-24 23:59:59"],
+                "time_size": "DAY",
+                "price_range": null,
+                "party_size": [1,2],
+                "restaurant_group": null
+            },
+            "answer": [
+                ["2023-4-22", 1, "CASH", 1],
+                ["2022-2-23", 2, "PHONE", 1],
+                ["2022-2-24", 2, "CASH", 1],
+                ["2022-2-24", 3, "CASH", 1]
+            ]
+        },
+        {
+            "topic": "payment by DAY filtered by party size",
+            "input": {
+                "time_range": ["2022-01-10 00:00:00", "2023-05-24 23:59:59"],
+                "time_size": "DAY",
+                "price_range": null,
+                "party_size": null,
+                "restaurant_group": "res_a1"
+            },
+            "answer": [
+                ["2022-2-23", 1, "BITCOIN", 1],
+                ["2022-2-23", 1, "CARD", 2],
+                ["2023-4-22", 1, "CASH", 1]
             ]
         }
     ]

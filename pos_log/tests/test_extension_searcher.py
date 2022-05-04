@@ -66,6 +66,31 @@ class TestExtensionSearcher(APITestCase):
         # 테스트 전 DB에 테스트 할 데이터 업로드
         load_data(TestExtensionSearcher.INPUT_ROOT)
 
+    def tcase_runner(self, api, test_file):
+        """
+        테스트 케이스 정보 제너레이터
+        테스트 케이스를 실행한 결과물들을 출력
+        """
+
+        # 테스트 케이스가 들어있는 JSON 파일
+        test_case_root = f"{self.INPUT_ROOT}/{test_file}"
+
+        # json LOAD
+        with open(test_case_root, "rt") as f:
+            test_cases = json.load(f)['case']
+            for case in test_cases:
+                """
+                topic: 테스트 주제
+                input: input data
+                output: 출력
+                answer: 정답
+                """
+                topic, input_data, answer = \
+                    case['topic'], case['input'], case['answer']
+                url = f"{self.API}/{api}"
+                output = self.client.get(url, input_data)
+                yield topic, input_data, output, answer
+
     def test_wrong_url(self):
         """
         잘못된 search url
@@ -73,30 +98,20 @@ class TestExtensionSearcher(APITestCase):
         self.assertEqual(self.client.get(f"{self.API}/aaaaaa").status_code, 
             status.HTTP_400_BAD_REQUEST)
 
-    def test_payment_validate(self):
+    def test_payment_numberofparty_validate(self):
         """
         payment 분석 API에 대한 validate 검사 테스트
         유효성 판별 테스트로 status code만 검토
+
+        party, payment둘 다 동일한 예외처리를 가지므로
+        하나만 돌린다.
         """
         for topic, input_data, output, answer \
-            in self.tcase_runner("payment", "payment_validate.json"):
+            in self.tcase_runner("payment", "payment_partysize_validate.json"):
                 self.assertEqual(
                     output.status_code, answer, 
                     msg=self.ERR_MSG.format(topic, input_data, answer, output.status_code))
 
-    def test_number_of_party_validate(self):
-        """
-        party 분석 API에 대한 validate 검사 테스트
-        유효성 판별 테스트로 status code만 검토
-
-        payment와 동일
-        """
-        for topic, input_data, output, answer \
-            in self.tcase_runner("number-of-party", "partysize_validate.json"):
-                self.assertEqual(
-                    output.status_code, answer, 
-                    msg=self.ERR_MSG.format(topic, input_data, answer, output.status_code))
-    
     def test_payment_result(self):
         """
         payment 쿼리 결과에 대한 테스트
@@ -135,25 +150,3 @@ class TestExtensionSearcher(APITestCase):
                     output.json(), answer,
                     msg=self.ERR_MSG.format(topic, input_data, answer, output.json()))
 
-
-    def tcase_runner(self, api, test_file):
-        # test case runner
-
-        # 테스트 케이스가 들어있는 JSON 파일
-        test_case_root = f"{self.INPUT_ROOT}/{test_file}"
-
-        # json LOAD
-        with open(test_case_root, "rt") as f:
-            test_cases = json.load(f)['case']
-            for case in test_cases:
-                """
-                topic: 테스트 주제
-                input: input data
-                output: 출력
-                answer: 정답
-                """
-                topic, input_data, answer = \
-                    case['topic'], case['input'], case['answer']
-                url = f"{self.API}/{api}"
-                output = self.client.get(url, input_data)
-                yield topic, input_data, output, answer

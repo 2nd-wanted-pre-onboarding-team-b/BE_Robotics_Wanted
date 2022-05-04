@@ -107,44 +107,55 @@ class PosLogSearcherView(APIView):
     (GET) /api/pos/<search_type:str>
     '''
     def get(self, request, search_type):
+        """
+            search_type: payment: 결제수단에 대한 검색
+            search_type: number_of_party: 영수증 하나 당 인원 수에 대한 검색
+        """
         from pos_log.modules.lambdas import Inputs, Validators, Filters
-
-        """ CONST VALIES """
 
         """ ERRORS """
         err_406 = lambda: Response(status = status.HTTP_406_NOT_ACCEPTABLE)
         err_400 = lambda: Response(status = status.HTTP_400_BAD_REQUEST)
-        err_200 = lambda res: Response(res, status=status.HTTP_200_OK)
-        """ Lambda FUNCTIONS"""
-        url2column      = lambda s: "number_of_party" if "number=of-query" else s
+        err_200 = lambda res: Response(res, status = status.HTTP_200_OK)
+        """
+        Lambda FUNCTIONS
+        
+        func: url2column:   number of party일 경우 search_type에 "-"를 "_"로 변경된 결로 출력
+        func: str2datetime: string to datetime
+        func: is_omited:    쿼리 작동에 필요한 요소들이 있는 지 확인. True일 경우 Failed
+        """
+        url2column      = lambda s: "number_of_party" if s == "number-of-party" else s
         str2datetime    = lambda s: datetime.datetime.strptime(s, "%Y-%m-%d")
-        is_omited       = lambda t_start, t_end, t_size : all([t_start, t_end, t_size])
+        is_omited       = lambda t_start, t_end, t_size : not all([t_start, t_end, t_size])
 
         if search_type not in {"payment", "number-of-party"}:
             # payment, partysize 아니면 400 처리
             return err_400()
 
         # Param 받기
+        # res_group은 restaurant_group의 줄임말이다.
         time_range, timesize, price_range, party_range, res_group = \
             Inputs.search_log(request.GET)
 
         # 필수 사항
         # 얘네들 없으면 안됨
-        if not is_omited(*time_range, timesize):
+        if is_omited(*time_range, timesize):
             return err_406()
 
-        # 대문자 처리
+        # Timesize 대문자 처리
         timesize = timesize.upper() if timesize else None
 
         try:
             # str상태인 범위 인자를 상황에 맞게 변형
             time_range = list(map(str2datetime, time_range))
-            price_range = [None, None] if not all(price_range) else list(map(int, price_range))
-            party_range = [None, None] if not all(party_range) else list(map(int, party_range))
+
+            to_int = lambda e: int(e) if e != None else None
+            price_range = list(map(to_int, price_range))
+            party_range = list(map(to_int, party_range))
         except Exception:
             return err_406()
 
-        # 인자값 예외 처리
+        # 파리미터에 대한 예외 처리
         is_passed = Validators.Searcher.res_group(          \
             Validators.Searcher.party_size(                 \
                 Validators.Searcher.price_range(            \
@@ -161,7 +172,7 @@ class PosLogSearcherView(APIView):
             # 통과 못하면 에러
             return err_406()
 
-        # 필터링 생성
+        # 필터 생성
         q = Filters.Searcher.restaurant_group(      \
             Filters.Searcher.party(                 \
                 Filters.Searcher.price(             \
@@ -172,8 +183,10 @@ class PosLogSearcherView(APIView):
             ,*party_range)                          \
         ,res_group)
 
-        # sql 쿼리 실행
+        # 필터를 이용한 PosLog 조회
         result = PosLog.objects.filter(q).values("restaurant_id")
+
+        # Timesize에 대한 Table
         generate_timesize_table = lambda count_col: \
         {
             "DAY":      ["date", lambda q: q.annotate(
@@ -188,20 +201,18 @@ class PosLogSearcherView(APIView):
                                 count=Count(count_col), week=TruncWeek('timestamp'))]
         }
         TIME_SIZE_TRUNC = generate_timesize_table(url2column(search_type))
-        if search_type == "payment":
-            result = TIME_SIZE_TRUNC[timesize][1](result).values(   \
-                'restaurant_id', 'count', 'payment', TIME_SIZE_TRUNC[timesize][0])
-        else:
-            # party size
-            result = TIME_SIZE_TRUNC[timesize][1](result).values(   \
-                'restaurant_id', 'count', 'number_of_party', TIME_SIZE_TRUNC[timesize][0])
+
+        # 결재 수단, 또는 인원 수로 Count 묶기
+        result = TIME_SIZE_TRUNC[timesize][1](result).values(   \
+            'restaurant_id', 'count', url2column(search_type), TIME_SIZE_TRUNC[timesize][0])
 
         """
         TODO: testsize에 대해 date format을 다르게 해야 하는데
-        원래는 쿼리단에서 이를 해결해야 하나 계속되는 오류로
-        일단 여기서 진행
+        원래는 쿼리단에서 이를 해결해야 성능이 빠르나 계속되는 오류로
+        임시방편으로 쿼리 작업 후 반복문에서 진행
 
-        예를 들어 HOUR이면 2022-08-01을 달만 빼서 8로 변환한다.
+        예를 들어 HOUR이면 2022-08-01 8:43:00에 시간만 빼서 8로 변환한다.
+        key값이 date에서 hour로 바뀌어 date: 8에서 hour: 8로 바뀐다.
         """
         zp = lambda x: str(x).zfill(2)
         TIME_SIZE_FORMAT = {

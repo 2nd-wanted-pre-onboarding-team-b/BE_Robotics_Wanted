@@ -87,7 +87,7 @@ class PosLogSearchView(APIView):
             q &= Q(number_of_party__lte=max_party)
         if group:
             q &= Q(restaurant__group_id=group)
-                    
+
         res = PosLog.objects.filter(q).annotate(date=TIME_FORM[timesize]).values('date')
 
         if payment:

@@ -110,16 +110,17 @@ class PosLogTestCase(APITestCase):
     def test_correct_post_nomal(self):
         data = [
             {
-                "time": "2022-05-04T00:00:00",
+                "time": "2022-05-04",
                 "restaurant_id": self.restaurant1_data.id,
                 "total_price": 1000,
             },
             {
-                "time": "2022-05-04T00:00:00",
+                "time": "2022-05-04",
                 "restaurant_id": self.restaurant2_data.id,
                 "total_price": 10000,
             }
         ]
         response = self.client.get(f"/api/pos?start-time=2022-05-03&end-time=2022-05-06&timesize=day&min-price=100&max-price=50000&group={self.group_data.id}&min-party=2&max-party=3")
+        
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertCountEqual(response.json(), data)

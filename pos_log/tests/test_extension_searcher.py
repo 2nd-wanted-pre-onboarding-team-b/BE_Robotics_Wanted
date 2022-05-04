@@ -38,7 +38,7 @@ def load_data(groups, restuarants, logs):
     for t, ri, p, nop, pay in logs:
         if t == 'timestamp':
             continue
-                
+
         # id 자동생성 문제로 인하여 Raw Query로 해결
         with connection.cursor() as cursor:
             s = f"INSERT INTO pos_log VALUES ({i},'{t}',{p},{nop},'{pay}',{ri})"
@@ -47,7 +47,7 @@ def load_data(groups, restuarants, logs):
 
 class TestExtensionSearcher(APITestCase):
 
-    API         = "/api/pos2"
+    API = "/api/pos"
 
     @classmethod
     def setUpTestData(cls):
@@ -81,12 +81,12 @@ class TestExtensionSearcher(APITestCase):
         """
 
         # omit start time
-        req = {"end-time": "2022-04-07", "timesize": "HOUR"}
+        req = {"end-time": "2022-04-07", "timesize": "hour"}
         self.assertEqual(
             self.client.get(self.API, req).status_code, 406)
 
         # omit end time
-        req = {"start-time": "2022-04-07", "timesize": "HOUR"}
+        req = {"start-time": "2022-04-07", "timesize": "hour"}
         self.assertEqual(
             self.client.get(self.API, req).status_code, 406)
 
@@ -95,11 +95,35 @@ class TestExtensionSearcher(APITestCase):
         self.assertEqual(
             self.client.get(self.API, req).status_code, 406)
 
+    def test_wrong_params(self):
+        """
+        알맞지않은 파라미터
+        """
+        
+        req = {
+            "start-time"    : "2022-04-05",
+            "end-date"      : "???",
+            "timesize"      : "hour"
+        }
+        self.assertEqual(
+            self.client.get(self.API, req).status_code, 406,
+            msg="end date의 데이터가 알맞지 않음"
+        )
+
+        # 이상한 timesize
+        req['end-date'] = '2022-05-01'
+        req['timesize'] = 'mayday'
+        self.assertEqual(
+            self.client.get(self.API, req).status_code, 406,
+            msg="엉뚱한 timesize"
+        )
+        
+
     def test_payment_all_day(self):
 
         req = {
             "start-time"    : "2022-01-10",
-            "end-time"      : "2023-05-25",
+            "end-time"      : "2023-04-22",
             "timesize"      : "day",
             "payment"       : "all"
         }
@@ -158,7 +182,6 @@ class TestExtensionSearcher(APITestCase):
         self.assertCountEqual(res.json(), answer)
 
     def test_payment_card_day(self):
-
         req = {
             "start-time"    : "2022-01-10",
             "end-time"      : "2023-05-25",
@@ -174,7 +197,6 @@ class TestExtensionSearcher(APITestCase):
         self.assertCountEqual(res.json(), answer)
 
     def test_numofparty_all_day(self):
-
         req = {
             "start-time"    : "2022-01-10",
             "end-time"      : "2023-05-25",

@@ -47,7 +47,7 @@ def load_data(groups, restuarants, logs):
 
 class TestExtensionSearcher(APITestCase):
 
-    API         = "/api/pos2"
+    API = "/api/pos"
 
     @classmethod
     def setUpTestData(cls):

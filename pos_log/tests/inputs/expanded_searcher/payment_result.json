@@ -1,0 +1,139 @@
+{
+    "case": [
+        {
+            "topic": "payment by HOUR",
+            "input": {
+                "start-time": "2022-01-10",
+                "end-time": "2023-05-25",
+                "timesize": "HOUR"
+            },
+            "answer": [
+                {"restaurant_id": 1, "payment": "CARD", "count": 2, "hour": "13"},
+                {"restaurant_id": 1, "payment": "BITCOIN", "count": 1, "hour": "16"},
+                {"restaurant_id": 1, "payment": "CASH", "count": 1, "hour": "20"},
+                {"restaurant_id": 2, "payment": "PHONE", "count": 1, "hour": "13"},
+                {"restaurant_id": 2, "payment": "CASH", "count": 1, "hour": "6"},
+                {"restaurant_id": 3, "payment": "CASH", "count": 1, "hour": "9"},
+                {"restaurant_id": 3, "payment": "BITCOIN", "count": 1, "hour": "10"}
+            ]
+        },
+        {
+            "topic": "payment by DAY",
+            "input": {
+                "start-time": "2022-01-10",
+                "end-time": "2023-05-25",
+                "timesize": "DAY"
+            },
+            "answer": [
+                {"restaurant_id": 1, "payment": "BITCOIN", "count": 1, "date": "2022-02-23"},
+                {"restaurant_id": 1, "payment": "CARD", "count": 2, "date": "2022-02-23"},
+                {"restaurant_id": 1, "payment": "CASH", "count": 1, "date": "2023-04-22"},
+                {"restaurant_id": 2, "payment": "PHONE", "count": 1, "date": "2022-02-23"},
+                {"restaurant_id": 2, "payment": "CASH", "count": 1, "date": "2022-02-24"},
+                {"restaurant_id": 3, "payment": "CASH", "count": 1, "date": "2022-02-24"},
+                {"restaurant_id": 3, "payment": "BITCOIN", "count": 1, "date": "2022-03-13"}
+            ]
+        },
+        {
+            "topic": "payment by WEEK",
+            "input": {
+                "start-time": "2022-01-10",
+                "end-time": "2023-05-25",
+                "timesize": "WEEK"
+            },
+            "answer": [
+                {"restaurant_id": 1, "payment": "BITCOIN", "count": 1, "week": "2022-02-21"},
+                {"restaurant_id": 1, "payment": "CARD", "count": 2, "week": "2022-02-21"},
+                {"restaurant_id": 1, "payment": "CASH", "count": 1, "week": "2023-04-17"},
+                {"restaurant_id": 2, "payment": "CASH", "count": 1, "week": "2022-02-21"},
+                {"restaurant_id": 2, "payment": "PHONE", "count": 1, "week": "2022-02-21"},
+                {"restaurant_id": 3, "payment": "CASH", "count": 1, "week": "2022-02-21"},
+                {"restaurant_id": 3, "payment": "BITCOIN", "count": 1, "week": "2022-03-07"}
+            ]
+        },
+        {
+            "topic": "payment by MONTH",
+            "input": {
+                "start-time": "2022-01-10",
+                "end-time": "2023-05-25",
+                "timesize": "MONTH"
+            },
+            "answer": [
+                {"restaurant_id": 1, "payment": "BITCOIN", "count": 1, "month": "2"},
+                {"restaurant_id": 1, "payment": "CARD", "count": 2, "month": "2"},
+                {"restaurant_id": 1, "payment": "CASH", "count": 1, "month": "4"},
+                {"restaurant_id": 2, "payment": "CASH", "count": 1, "month": "2"},
+                {"restaurant_id": 2, "payment": "PHONE", "count": 1, "month": "2"},
+                {"restaurant_id": 3, "payment": "CASH", "count": 1, "month": "2"},
+                {"restaurant_id": 3, "payment": "BITCOIN", "count": 1, "month": "3"}
+            ]
+        },
+        {
+            "topic": "payment by YEAR",
+            "input": {
+                "start-time": "2022-01-10",
+                "end-time": "2023-05-25",
+                "timesize": "YEAR"
+            },
+            "answer": [
+                {"restaurant_id": 1, "payment": "BITCOIN", "count": 1, "year": "2022"},
+                {"restaurant_id": 1, "payment": "CARD", "count": 2, "year": "2022"},
+                {"restaurant_id": 1, "payment": "CASH", "count": 1, "year": "2023"},
+                {"restaurant_id": 2, "payment": "CASH", "count": 1, "year": "2022"},
+                {"restaurant_id": 2, "payment": "PHONE", "count": 1, "year": "2022"},
+                {"restaurant_id": 3, "payment": "BITCOIN", "count": 1, "year": "2022"},
+                {"restaurant_id": 3, "payment": "CASH", "count": 1, "year": "2022"}
+            ]
+        },
+        {
+            "topic": "payment by DAY filtered by price",
+            "input": {
+                "start-time": "2022-01-10",
+                "end-time": "2023-05-25",
+                "timesize": "DAY",
+                "min-price": 3000,
+                "max-price": 4000
+            },
+            "answer": [
+                {"restaurant_id": 1, "payment": "BITCOIN", "count": 1, "date": "2022-02-23"},
+                {"restaurant_id": 1, "payment": "CARD", "count": 2, "date": "2022-02-23"},
+                {"restaurant_id": 1, "payment": "CASH", "count": 1, "date": "2023-04-22"},
+                {"restaurant_id": 2, "payment": "PHONE", "count": 1, "date": "2022-02-23"},
+                {"restaurant_id": 3, "payment": "CASH", "count": 1, "date": "2022-02-24"},
+                {"restaurant_id": 3, "payment": "BITCOIN", "count": 1, "date": "2022-03-13"}
+            ]
+        },
+        {
+            "topic": "payment by DAY filtered by party size",
+            "input": {
+                "start-time": "2022-01-10",
+                "end-time": "2023-05-25",
+                "timesize": "DAY",
+                "min-party": 1,
+                "max-party": 2
+            },
+            "answer": [
+                {"restaurant_id": 1, "payment": "CASH", "count": 1, "date": "2023-04-22"},
+                {"restaurant_id": 2, "payment": "PHONE", "count": 1, "date": "2022-02-23"},
+                {"restaurant_id": 2, "payment": "CASH", "count": 1, "date": "2022-02-24"},
+                {"restaurant_id": 3, "payment": "CASH", "count": 1, "date": "2022-02-24"}
+            ]
+        },
+        {
+            "topic": "payment by DAY filtered by restaurant group",
+            "input": {
+                "start-time": "2022-01-10",
+                "end-time": "2023-05-25",
+                "timesize": "DAY",
+                "group": 1
+            },
+            "answer": [
+                {"restaurant_id": 1, "payment": "BITCOIN", "count": 1, "date": "2022-02-23"},
+                {"restaurant_id": 1, "payment": "CARD", "count": 2, "date": "2022-02-23"},
+                {"restaurant_id": 1, "payment": "CASH", "count": 1, "date": "2023-04-22"},
+                {"restaurant_id": 2, "payment": "PHONE", "count": 1, "date": "2022-02-23"},
+                {"restaurant_id": 2, "payment": "CASH", "count": 1, "date": "2022-02-24"}
+            ]
+        }
+    ]
+}

@@ -1,7 +1,6 @@
 from django.urls import path
-from pos_log.views import PoslogListView, PosLogSearcherView
+from pos_log.views import PosLogSearchView
 
 urlpatterns = [
-    path('2', PosLogSearcherView.as_view()),
-    path('', PoslogListView.as_view()),
+    path('', PosLogSearchView.as_view()),
 ]

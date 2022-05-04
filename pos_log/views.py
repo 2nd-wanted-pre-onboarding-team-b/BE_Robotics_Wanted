@@ -109,7 +109,7 @@ class PosLogSearcherView(APIView):
     def get(self, request, search_type):
         """
             search_type: payment: 결제수단에 대한 검색
-            search_type: number_of_party: 영수증 하나 당 인원 수에 대한 검색
+            search_type: number-of-party: 영수증 하나 당 인원 수에 대한 검색
         """
         from pos_log.modules.lambdas import Inputs, Validators, Filters
 

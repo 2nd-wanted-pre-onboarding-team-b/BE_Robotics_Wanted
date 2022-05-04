@@ -1,3 +1,4 @@
+from itertools import count
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -10,6 +11,7 @@ from restaurants.models import Restaurant
 from django.db.models import Q, F, Sum, Count
 from django.db.models.functions import TruncHour, TruncDay, TruncMonth, TruncWeek, TruncYear, TruncDate
 import datetime
+from typing import Dict
 
 def Date(str):
     return datetime.datetime.strptime(str, '%Y-%m-%d').date()
@@ -69,7 +71,6 @@ class PoslogListView(APIView):
         max_party = request.GET.get("max-party",None)
         group = request.GET.get("group",None)
         
-        
         if min_price:
             q &= Q(price__gte=min_price)
         if max_price:
@@ -104,125 +105,63 @@ class PosLogSearcherView(APIView):
     Writer: 하정현
     
     확장 검색 API
-    (GET) /api/pos/<search_type:str>
+    (GET) /api/pos2
     '''
-    def get(self, request, search_type):
-        """
-            search_type: payment: 결제수단에 대한 검색
-            search_type: number-of-party: 영수증 하나 당 인원 수에 대한 검색
-        """
-        from pos_log.modules.lambdas import Inputs, Validators, Filters
+    def get(self, request):
 
-        """ ERRORS """
-        err_406 = lambda: Response(status = status.HTTP_406_NOT_ACCEPTABLE)
-        err_400 = lambda: Response(status = status.HTTP_400_BAD_REQUEST)
-        err_200 = lambda res: Response(res, status = status.HTTP_200_OK)
-        """
-        Lambda FUNCTIONS
+        """ CONST VALUES """
+        TIME_FORM = {
+            'hour'  :TruncHour('timestamp'),
+            'day'   :TruncDate('timestamp'),
+            'week'  :TruncWeek('timestamp'),
+            'month' :TruncMonth('timestamp'),
+            'year'  :TruncYear('timestamp')
+        }
+
+        """ PARAMS """
+        start_time  = request.GET.get("start-time")
+        end_time    = request.GET.get("end-time")
+        timesize    = request.GET.get("timesize")
+        min_price   = request.GET.get("min-price")
+        max_price   = request.GET.get("max-price")
+        min_party   = request.GET.get("min-party")
+        max_party   = request.GET.get("max-party")
+        group       = request.GET.get("group")
+        payment     = request.GET.get("payment")
+        num_of_party= request.GET.get("number-of-party")
+
+        # 하나라도 없으면 안됨
+        if not all((start_time, end_time, timesize)):
+            return Response(status = status.HTTP_406_NOT_ACCEPTABLE)
+
+        # timesize validate
+        if timesize not in {'day', 'hour', 'week', 'month', 'year'}:
+            return Response(status = status.HTTP_406_NOT_ACCEPTABLE)
         
-        func: url2column:   number of party일 경우 search_type에 "-"를 "_"로 변경된 결로 출력
-        func: str2datetime: string to datetime
-        func: is_omited:    쿼리 작동에 필요한 요소들이 있는 지 확인. True일 경우 Failed
-        """
-        url2column      = lambda s: "number_of_party" if s == "number-of-party" else s
-        str2datetime    = lambda s: datetime.datetime.strptime(s, "%Y-%m-%d")
-        is_omited       = lambda t_start, t_end, t_size : not all([t_start, t_end, t_size])
+        q = Q()
+        q &= Q(timestamp__gte=Date(start_time))
+        q &= Q(timestamp__lte=Date(end_time))
+        q = q & Q(price__gte=min_price) if min_price else q
+        q = q & Q(price__lte=max_price) if max_price else q
+        q = q & Q(number_of_party__gte=min_party) if min_party else q
+        q = q & Q(number_of_party__lte=max_party) if max_party else q
+        q = q & Q(restaurant__group_id=group) if group else q
 
-        if search_type not in {"payment", "number-of-party"}:
-            # payment, partysize 아니면 400 처리
-            return err_400()
+        res: Dict[str, object] = {}
+        res = PosLog.objects.filter(q).values()     \
+                .annotate(date=TIME_FORM[timesize]) \
+                .values('date')
 
-        # Param 받기
-        # res_group은 restaurant_group의 줄임말이다.
-        time_range, timesize, price_range, party_range, res_group = \
-            Inputs.search_log(request.GET)
+        if payment:
+            # 결제수단 기준
+            res = res.annotate(count=Count('payment'))
+            if payment != 'all':
+                res = res.filter(payment=payment)
+            res = res.values('restaurant_id', 'count', "payment", "date")
+        elif num_of_party:
+            res = res.annotate(count=Count('number_of_party'))
+            if num_of_party != 'all':
+                res = res.filter(number_of_party=num_of_party)
+            res = res.values('restaurant_id', 'count', "number_of_party", "date")
 
-        # 필수 사항
-        # 얘네들 없으면 안됨
-        if is_omited(*time_range, timesize):
-            return err_406()
-
-        # Timesize 대문자 처리
-        timesize = timesize.upper() if timesize else None
-
-        try:
-            # str상태인 범위 인자를 상황에 맞게 변형
-            time_range = list(map(str2datetime, time_range))
-
-            to_int = lambda e: int(e) if e != None else None
-            price_range = list(map(to_int, price_range))
-            party_range = list(map(to_int, party_range))
-        except Exception:
-            return err_406()
-
-        # 파리미터에 대한 예외 처리
-        is_passed = Validators.Searcher.res_group(          \
-            Validators.Searcher.party_size(                 \
-                Validators.Searcher.price_range(            \
-                    Validators.Searcher.time_size(          \
-                        Validators.Searcher.time_range(     \
-                            True                            \
-                        ,*time_range)                       \
-                    ,timesize)                              \
-                ,*price_range)                              \
-            ,*party_range)                                  \
-        ,res_group)
-
-        if not is_passed:
-            # 통과 못하면 에러
-            return err_406()
-
-        # 필터 생성
-        q = Filters.Searcher.restaurant_group(      \
-            Filters.Searcher.party(                 \
-                Filters.Searcher.price(             \
-                    Filters.Searcher.timestamp(     \
-                        Q()                         \
-                    ,*time_range)                   \
-                ,*price_range)                      \
-            ,*party_range)                          \
-        ,res_group)
-
-        # 필터를 이용한 PosLog 조회
-        result = PosLog.objects.filter(q).values("restaurant_id")
-
-        # Timesize에 대한 Table
-        generate_timesize_table = lambda count_col: \
-        {
-            "DAY":      ["date", lambda q: q.annotate(
-                                count=Count(count_col), date=TruncDate('timestamp'))],
-            "MONTH":    ["month", lambda q: q.annotate(
-                                count=Count(count_col), month=TruncMonth('timestamp'))],
-            "YEAR":     ["year", lambda q: q.annotate(
-                                count=Count(count_col), year=TruncYear('timestamp'))],
-            "HOUR":     ["hour", lambda q: q.annotate(
-                                count=Count(count_col), hour=TruncHour('timestamp'))],
-            "WEEK":     ["week", lambda q: q.annotate(
-                                count=Count(count_col), week=TruncWeek('timestamp'))]
-        }
-        TIME_SIZE_TRUNC = generate_timesize_table(url2column(search_type))
-
-        # 결재 수단, 또는 인원 수로 Count 묶기
-        result = TIME_SIZE_TRUNC[timesize][1](result).values(   \
-            'restaurant_id', 'count', url2column(search_type), TIME_SIZE_TRUNC[timesize][0])
-
-        """
-        TODO: testsize에 대해 date format을 다르게 해야 하는데
-        원래는 쿼리단에서 이를 해결해야 성능이 빠르나 계속되는 오류로
-        임시방편으로 쿼리 작업 후 반복문에서 진행
-
-        예를 들어 HOUR이면 2022-08-01 8:43:00에 시간만 빼서 8로 변환한다.
-        key값이 date에서 hour로 바뀌어 date: 8에서 hour: 8로 바뀐다.
-        """
-        zp = lambda x: str(x).zfill(2)
-        TIME_SIZE_FORMAT = {
-            "HOUR"  : lambda x: f"{x.hour}",
-            "DAY"   : lambda x: f"{x.year}-{zp(x.month)}-{zp(x.day)}",
-            "YEAR"  : lambda x: f"{x.year}",
-            "MONTH" : lambda x: f"{x.month}",
-            "WEEK"  : lambda x: f"{x.year}-{zp(x.month)}-{zp(x.day)}"
-        }
-        for i in range(len(result)):
-            k = 'date' if timesize == 'DAY' else timesize.lower()
-            result[i][k] = TIME_SIZE_FORMAT[timesize](result[i][k])
-        return err_200(result)
+        return Response(res, status=status.HTTP_200_OK)

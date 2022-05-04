@@ -57,96 +57,86 @@ def load_data(i_root):
 
 class TestExtensionSearcher(APITestCase):
 
-    INPUT_ROOT  = "pos_log/tests/inputs/expanded_searcher"
-    API         = "/api/pos"
-    ERR_MSG     = "Topic: {0}\nInput: {1}\nAnswer: {2}\nOutput: {3}\n"
+    API         = "/api/pos2"
 
     @classmethod
     def setUpTestData(cls):
         # 테스트 전 DB에 테스트 할 데이터 업로드
-        load_data(TestExtensionSearcher.INPUT_ROOT)
+        load_data("pos_log/tests/inputs/expanded_searcher")
 
-    def tcase_runner(self, api, test_file):
+    def test_omit_nessary(self):
         """
-        테스트 케이스 정보 제너레이터
-        테스트 케이스를 실행한 결과물들을 출력
+        필수 부분 빠져있는 것에 대한 예외 처리
         """
 
-        # 테스트 케이스가 들어있는 JSON 파일
-        test_case_root = f"{self.INPUT_ROOT}/{test_file}"
+        # omit start time
+        req = {"end-time": "2022-04-07", "timesize": "HOUR"}
+        self.assertEqual(
+            self.client.get(self.API, req).status_code, 406)
 
-        # json LOAD
-        with open(test_case_root, "rt") as f:
-            test_cases = json.load(f)['case']
-            for case in test_cases:
-                """
-                topic: 테스트 주제
-                input: input data
-                output: 출력
-                answer: 정답
-                """
-                topic, input_data, answer = \
-                    case['topic'], case['input'], case['answer']
-                url = f"{self.API}/{api}"
-                output = self.client.get(url, input_data)
-                yield topic, input_data, output, answer
+        # omit end time
+        req = {"start-time": "2022-04-07", "timesize": "HOUR"}
+        self.assertEqual(
+            self.client.get(self.API, req).status_code, 406)
 
-    def test_wrong_url(self):
-        """
-        잘못된 search url
-        """
-        self.assertEqual(self.client.get(f"{self.API}/aaaaaa").status_code, 
-            status.HTTP_400_BAD_REQUEST)
+        # omit timesize
+        req = {"start-time": "2022-04-07", "end-time": "2022-04-07"}
+        self.assertEqual(
+            self.client.get(self.API, req).status_code, 406)
 
-    def test_payment_numberofparty_validate(self):
-        """
-        payment 분석 API에 대한 validate 검사 테스트
-        유효성 판별 테스트로 status code만 검토
+    
+    def test_payment_all_day(self):
 
-        party, payment둘 다 동일한 예외처리를 가지므로
-        하나만 돌린다.
-        """
-        for topic, input_data, output, answer \
-            in self.tcase_runner("payment", "payment_partysize_validate.json"):
-                self.assertEqual(
-                    output.status_code, answer, 
-                    msg=self.ERR_MSG.format(topic, input_data, answer, output.status_code))
+        req = {
+            "start-time"    : "2022-01-10",
+            "end-time"      : "2023-05-25",
+            "timesize"      : "day",
+            "payment"       : "all"
+        }
+        answer = [
+            {"restaurant_id": 1, "payment": "BITCOIN", "count": 1, "date": "2022-02-23"},
+            {"restaurant_id": 1, "payment": "CARD", "count": 2, "date": "2022-02-23"},
+            {"restaurant_id": 1, "payment": "CASH", "count": 1, "date": "2023-04-22"},
+            {"restaurant_id": 2, "payment": "PHONE", "count": 1, "date": "2022-02-23"},
+            {"restaurant_id": 2, "payment": "CASH", "count": 1, "date": "2022-02-24"},
+            {"restaurant_id": 3, "payment": "CASH", "count": 1, "date": "2022-02-24"},
+            {"restaurant_id": 3, "payment": "BITCOIN", "count": 1, "date": "2022-03-13"}
+        ]
+        res = self.client.get(self.API, req)
+        self.assertEqual(res.status_code, 200)
+        self.assertCountEqual(res.json(), answer)
 
-    def test_payment_result(self):
-        """
-        payment 쿼리 결과에 대한 테스트
-        status code, 결과 까지 전부 검토
-        """
-        for topic, input_data, output, answer \
-            in self.tcase_runner("payment", "payment_result.json"):
+    def test_payment_card_day(self):
 
-                # 항상 200이 나와야 한다
-                self.assertEqual(
-                    output.status_code, status.HTTP_200_OK, 
-                    msg=self.ERR_MSG.format(
-                        topic, input_data, status.HTTP_200_OK, output.status_code))
+        req = {
+            "start-time"    : "2022-01-10",
+            "end-time"      : "2023-05-25",
+            "timesize"      : "day",
+            "payment"       : "CARD"
+        }
+        answer = [
+            {"restaurant_id": 1, "payment": "CARD", "count": 2, "date": "2022-02-23"}
+        ]
+        res = self.client.get(self.API, req)
+        self.assertEqual(res.status_code, 200)
+        self.assertCountEqual(res.json(), answer)
 
-                # 데이터가 올바르게 출력되는 지 검토
-                self.assertCountEqual(
-                    output.json(), answer,
-                    msg=self.ERR_MSG.format(topic, input_data, answer, output.json()))
-
-    def test_number_of_party_result(self):
-        """
-        party 쿼리 결과에 대한 테스트
-        status code, 결과 까지 전부 검토
-        """
-        for topic, input_data, output, answer \
-            in self.tcase_runner("number-of-party", "partysize_result.json"):
-
-                # 항상 200이 나와야 한다
-                self.assertEqual(
-                    output.status_code, status.HTTP_200_OK, 
-                    msg=self.ERR_MSG.format(
-                        topic, input_data, status.HTTP_200_OK, output.status_code))
-
-                # 데이터가 올바르게 출력되는 지 검토
-                self.assertCountEqual(
-                    output.json(), answer,
-                    msg=self.ERR_MSG.format(topic, input_data, answer, output.json()))
-
+    def test_numofparty_all_day(self):
+        
+        req = {
+            "start-time": "2022-01-10",
+            "end-time": "2023-05-25",
+            "timesize": "day",
+            "number-of-party": "all"
+        }
+        answer = [
+            {"restaurant_id": 1, "number_of_party": 3, "count": 3, "date": "2022-02-23"},
+            {"restaurant_id": 2, "number_of_party": 1, "count": 1, "date": "2022-02-23"},
+            {"restaurant_id": 3, "number_of_party": 1, "count": 1, "date": "2022-02-24"},
+            {"restaurant_id": 2, "number_of_party": 2, "count": 1, "date": "2022-02-24"},
+            {"restaurant_id": 3, "number_of_party": 4, "count": 1, "date": "2022-03-13"},
+            {"restaurant_id": 1, "number_of_party": 2, "count": 1, "date": "2023-04-22"}
+        ]
+        res = self.client.get(self.API, req)
+        self.assertEqual(res.status_code, 200)
+        self.assertCountEqual(res.json(), answer)

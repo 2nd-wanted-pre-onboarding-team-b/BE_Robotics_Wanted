@@ -158,7 +158,6 @@ class TestExtensionSearcher(APITestCase):
         self.assertCountEqual(res.json(), answer)
 
     def test_payment_card_day(self):
-
         req = {
             "start-time"    : "2022-01-10",
             "end-time"      : "2023-05-25",
@@ -174,7 +173,6 @@ class TestExtensionSearcher(APITestCase):
         self.assertCountEqual(res.json(), answer)
 
     def test_numofparty_all_day(self):
-
         req = {
             "start-time"    : "2022-01-10",
             "end-time"      : "2023-05-25",

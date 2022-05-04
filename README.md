@@ -1,4 +1,5 @@
-![베어_리드미](https://user-images.githubusercontent.com/88444944/166816316-a282c3c6-4ee3-41b6-893f-cde8408a518f.jpg)
+![image](https://user-images.githubusercontent.com/88444944/166816713-e28a22d2-b256-4429-a582-4c14867874fd.png)
+
 
 # Wanted team_B #2베어로보틱스 기업과제 #
 \
@@ -94,5 +95,5 @@ from POS does not have id.
 
 ## DB info.
 
-![베어로보틱스](https://user-images.githubusercontent.com/88444944/166816416-d8f06453-0f3c-4879-ac6d-9d0db8025639.jpg)
+![image](https://user-images.githubusercontent.com/88444944/166816865-ad38ade0-7449-4f25-8588-36b02b95bdd6.png)
 

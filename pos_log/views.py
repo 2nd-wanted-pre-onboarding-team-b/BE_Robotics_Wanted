@@ -141,7 +141,7 @@ class PosLogSearcherView(APIView):
         
         q = Q()
         q &= Q(timestamp__gte=Date(start_time))
-        q &= Q(timestamp__lte=Date(end_time))
+        q &= Q(timestamp__lte=Date(end_time)+datetime.timedelta(days=1))
         q = q & Q(price__gte=min_price) if min_price else q
         q = q & Q(price__lte=max_price) if max_price else q
         q = q & Q(number_of_party__gte=min_party) if min_party else q

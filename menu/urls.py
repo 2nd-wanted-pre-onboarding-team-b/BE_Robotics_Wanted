@@ -7,5 +7,5 @@ urlpatterns = [
     path('', MenuListView.as_view()),
     path('/<int:pk>', MenuDetailView.as_view()),
     path('/group', BonusPointView.as_view()),
-    path('/comparison', BonusPointMenuView.as_view()),
+    path('/sales', BonusPointMenuView.as_view()),
 ]

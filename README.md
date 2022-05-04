@@ -1,3 +1,5 @@
+![베어_리드미](https://user-images.githubusercontent.com/88444944/166816316-a282c3c6-4ee3-41b6-893f-cde8408a518f.jpg)
+
 # Wanted team_B #2베어로보틱스 기업과제 #
 \
 주어진 데이터 셋을 요구사항 대로 서빙하기 위한 관계형 데이터베이스 테이블을 설계하고,\
@@ -92,6 +94,5 @@ from POS does not have id.
 
 ## DB info.
 
-![베어로보틱스](https://user-images.githubusercontent.com/88444944/166814322-b9463ba8-0f22-49c4-8c7d-6ca2cf2c9fd3.png)
-
+![베어로보틱스](https://user-images.githubusercontent.com/88444944/166816416-d8f06453-0f3c-4879-ac6d-9d0db8025639.jpg)
 

@@ -8,7 +8,7 @@ from restaurants.models import Group, Restaurant
 
 APITestCase.maxDiff = None
 
-class BonusTestCase(APITestCase):
+class MenuSalesTestCase(APITestCase):
     def setUp(self):
         self.group_bibigo = Group.objects.create(group_name="비비고")
         self.group_vibs_burger = Group.objects.create(group_name="빕스버거")

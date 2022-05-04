@@ -2,9 +2,8 @@ from django.db.models import Q, Sum, F
 from django.db.models.functions import TruncHour, TruncDay, TruncWeek, TruncMonth, TruncYear
 
 from rest_framework.views import APIView
+from rest_framework.viewsets import ModelViewSet
 from rest_framework.response import Response
-from rest_framework import mixins
-from rest_framework import generics
 from rest_framework import status
 
 from .models import Menu
@@ -13,36 +12,9 @@ from .serializers import MenuSerializer
 from pos_log.models import PosLog
 
 
-class MenuListView(mixins.ListModelMixin,
-                    mixins.CreateModelMixin,
-                    generics.GenericAPIView):
-    queryset = Menu.objects.all()
+class MenuViewSet(ModelViewSet):
     serializer_class = MenuSerializer
-
-    def get(self, request, *args, **kwargs):
-        return self.list(request, *args, **kwargs)
-
-    def post(self, request, *args, **kwargs):
-        return self.create(request, *args, **kwargs)
-
-class MenuDetailView(mixins.RetrieveModelMixin,
-                    mixins.UpdateModelMixin,
-                    mixins.DestroyModelMixin,
-                    generics.GenericAPIView):
     queryset = Menu.objects.all()
-    serializer_class = MenuSerializer
-
-    def get(self, request, *args, **kwargs):
-        return self.retrieve(request, *args, **kwargs)
-
-    def patch(self, request, *args, **kwargs):
-        return self.partial_update(request, *args, **kwargs)
-
-    def put(self, request, *args, **kwargs):
-        return self.update(request, *args, **kwargs)
-
-    def delete(self, request, *args, **kwargs):
-        return self.destroy(request, *args, **kwargs)
 
 
 class BonusPointView(APIView):
@@ -82,7 +54,11 @@ class BonusPointView(APIView):
         )
         return Response(list(data))
 
-class BonusPointMenuView(APIView):
+
+class MenuSalesView(APIView):
+    """
+    작성자 : 최승리
+    """
     def get(self, request):
         start_time = request.GET.get('start-time')
         end_time = request.GET.get('end-time', start_time)

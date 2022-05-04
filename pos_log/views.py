@@ -8,8 +8,9 @@ from menu.models import Menu
 from .serializers import PosLogSerializer
 from restaurants.models import Restaurant
 
-from django.db.models import Q, F, Sum, Count
-from django.db.models.functions import TruncHour, TruncDay, TruncMonth, TruncWeek, TruncYear, TruncDate
+from django.db.models import Q, F, Sum, Count, Func, Value
+from django.db.models.functions import TruncHour, TruncDay, TruncMonth, TruncWeek, TruncYear, TruncDate, \
+    ExtractHour, ExtractDay, ExtractMonth, ExtractYear, ExtractWeek
 import datetime
 from typing import Dict
 
@@ -111,11 +112,11 @@ class PosLogSearcherView(APIView):
 
         """ CONST VALUES """
         TIME_FORM = {
-            'hour'  :TruncHour('timestamp'),
-            'day'   :TruncDate('timestamp'),
-            'week'  :TruncWeek('timestamp'),
-            'month' :TruncMonth('timestamp'),
-            'year'  :TruncYear('timestamp')
+            'hour'  : ExtractHour('timestamp'),
+            'day'   : TruncDate('timestamp'),
+            'week'  : TruncWeek('timestamp'),
+            'month' : ExtractMonth('timestamp'),
+            'year'  : ExtractYear('timestamp')
         }
 
         """ PARAMS """
@@ -148,8 +149,7 @@ class PosLogSearcherView(APIView):
         q = q & Q(restaurant__group_id=group) if group else q
 
         res: Dict[str, object] = {}
-        res = PosLog.objects.filter(q).values()     \
-                .annotate(date=TIME_FORM[timesize]) \
+        res = PosLog.objects.filter(q).annotate(date=TIME_FORM[timesize]) \
                 .values('date')
 
         if payment:
@@ -159,6 +159,7 @@ class PosLogSearcherView(APIView):
                 res = res.filter(payment=payment)
             res = res.values('restaurant_id', 'count', "payment", "date")
         elif num_of_party:
+            # 인원 기준
             res = res.annotate(count=Count('number_of_party'))
             if num_of_party != 'all':
                 res = res.filter(number_of_party=num_of_party)

@@ -15,17 +15,19 @@ def load_data(groups, restuarants, logs):
     테스트 돌리기 전, DB에 테스트용 데이터 업로드
     """
     # Group 생성
-    for g_name in groups:
+
+    for i, g_name in enumerate(groups):
         if g_name == 'group_name':
             continue
-        g = Group(group_name = g_name)
+        g = Group(id=i+1, group_name = g_name)
         g.save()
 
     # 식당 생성
-    for gi, n, c, a in restuarants:
+    for i, (gi, n, c, a) in enumerate(restuarants):
         if gi == 'group_id':
             continue
         r = Restaurant(
+            id=i+1,
             group=Group.objects.get(id=int(gi)),
             restaurant_name=n,
             city=c,
@@ -330,6 +332,24 @@ class TestExtensionSearcher(APITestCase):
             {"restaurant_id": 2, "number_of_party": 1, "count": 1, "date": 2, 'total_price': 4000},
             {"restaurant_id": 2, "number_of_party": 2, "count": 1, "date": 2, 'total_price': 5000},
             {"restaurant_id": 3, "number_of_party": 1, "count": 1, "date": 2, 'total_price': 3000},
+            {"restaurant_id": 3, "number_of_party": 4, "count": 1, "date": 3, 'total_price': 4000},
+            {"restaurant_id": 1, "number_of_party": 2, "count": 1, "date": 4, 'total_price': 3000}
+        ]
+        res = self.client.get(self.API, req)
+        self.assertEqual(res.status_code, 200)
+        self.assertCountEqual(res.json(), answer)
+
+        
+    def test_numofparty_all_month_2(self):
+        req = {
+            "start-time"    : "2022-03-01",
+            "end-time"      : "2023-05-25",
+            "timesize"      : "month",
+            "min-party"     : 1,
+            "max-party"     : 10,
+            "number-of-party": "CARD,BITCOIN,CASH,PHONE"
+        }
+        answer = [
             {"restaurant_id": 3, "number_of_party": 4, "count": 1, "date": 3, 'total_price': 4000},
             {"restaurant_id": 1, "number_of_party": 2, "count": 1, "date": 4, 'total_price': 3000}
         ]

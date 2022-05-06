@@ -110,7 +110,7 @@ class MenuSalesTestCase(APITestCase):
 
     def test_menu_sales(self):
         response = self.client.get("/api/menu/sales?menu-list=1,2,3,4&start-time=2022-02-01&end-time=2022-02-02&order=-total_price")
-        self.assertEqual(response.data, [
+        self.assertCountEqual(response.json(), [
             {'poslogmenu__menu': 3, 'total_price': 30000, 'menu_name': '제육덮밥'}, 
             {'poslogmenu__menu': 4, 'total_price': 30000, 'menu_name': '갈비비빔밥'}, 
             {'poslogmenu__menu': 1, 'total_price': 20000, 'menu_name': '버거'}, 
@@ -119,7 +119,7 @@ class MenuSalesTestCase(APITestCase):
         )
 
         response = self.client.get("/api/menu/sales?menu-list=1,2,3,4&start-time=2022-02-02&end-time=2022-02-03&order=-total_price")
-        self.assertEqual(response.data, [
+        self.assertCountEqual(response.json(), [
             {'poslogmenu__menu': 2, 'total_price': 40000, 'menu_name': '불고기버거'},
             {'poslogmenu__menu': 3, 'total_price': 30000, 'menu_name': '제육덮밥'}, 
             {'poslogmenu__menu': 4, 'total_price': 30000, 'menu_name': '갈비비빔밥'}
@@ -127,7 +127,7 @@ class MenuSalesTestCase(APITestCase):
         )
 
         response = self.client.get("/api/menu/sales?menu-list=3,4&start-time=2022-02-01&end-time=2022-02-03&order=-total_price")
-        self.assertEqual(response.data, [
+        self.assertCountEqual(response.json(), [
             {'poslogmenu__menu': 4, 'total_price': 45000, 'menu_name': '갈비비빔밥'},
             {'poslogmenu__menu': 3, 'total_price': 40000, 'menu_name': '제육덮밥'}
             ]

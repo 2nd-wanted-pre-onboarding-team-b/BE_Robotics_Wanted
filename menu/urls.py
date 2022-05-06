@@ -1,6 +1,6 @@
 from django.urls import path
 
-from .views import MenuViewSet, MenuSalesView, BonusPointView
+from .views import MenuViewSet, MenuSalesView
 
 
 menu_list = MenuViewSet.as_view({
@@ -17,6 +17,5 @@ menu_detail = MenuViewSet.as_view({
 urlpatterns = [
     path('', menu_list),
     path('/<int:pk>', menu_detail),
-    path('/group', BonusPointView.as_view()),
     path('/sales', MenuSalesView.as_view()),
 ]

@@ -42,72 +42,88 @@ class PosLogSearchView(APIView):
         return Response(status=status.HTTP_400_BAD_REQUEST)
 
     def get(self, request):
-        '''
-        작성자:하정현, 남기윤
-        '''
-        """ CONST VALUES """
-        TIME_FORM = {
-            'hour'  : ExtractHour('timestamp'),
-            'day'   : TruncDate('timestamp'),
-            'week'  : TruncWeek('timestamp'),
-            'month' : ExtractMonth('timestamp'),
-            'year'  : ExtractYear('timestamp')
-        }
+        """
+        작성자 : 하정현, 남기윤, 최승리
+        """
+        restaurant = request.GET.get('restaurant')
+        group = request.GET.get('group')
+        start_time = request.GET.get('start-time')
+        end_time = request.GET.get('end-time', start_time)
+        end_time = request.GET.get('end-time', None)
+        timesize = request.GET.get('timesize', None)
+        address = request.GET.get('address')
+        min_price = request.GET.get("min-price")
+        max_price = request.GET.get("max-price", None)
+        min_party = request.GET.get("min-party")
+        max_party = request.GET.get("max-party", None)
+        payment = request.GET.get("payment")
+        group_by = request.GET.get("group-by", None)
 
-        """ PARAMS """
-        start_time  = request.GET.get("start-time")
-        end_time    = request.GET.get("end-time")
-        timesize    = request.GET.get("timesize")
-        min_price   = request.GET.get("min-price")
-        max_price   = request.GET.get("max-price")
-        min_party   = request.GET.get("min-party")
-        max_party   = request.GET.get("max-party")
-        group       = request.GET.get("group")
-        payment     = request.GET.get("payment")
-        num_of_party= request.GET.get("number-of-party")
-
-        # 하나라도 없으면 안됨
-        if not all((start_time, end_time, timesize)):
-            return Response(status = status.HTTP_406_NOT_ACCEPTABLE)
-        # timesize validate
-        if timesize not in {'day', 'hour', 'week', 'month', 'year'}:
-            return Response(status = status.HTTP_406_NOT_ACCEPTABLE)
-        
         q = Q()
-        q &= Q(timestamp__gte=Date(start_time))
-        q &= Q(timestamp__lte=Date(end_time)+datetime.timedelta(days=1))
+        # 과도한 쿼리가 작동하는 것을 방지하기 위해 시간범위는 필수 지정
+        if not all((start_time, end_time, timesize)) or timesize not in {'day', 'hour', 'week', 'month', 'year'}:
+            return Response({"message": "start_time, end_time, timesize 필수데이터를 확인하세요"}, status = status.HTTP_400_BAD_REQUEST)
+
+        if restaurant:
+            q &= Q(restaurant = restaurant)
+
+        if group:
+            q &= Q(restaurant__group = group)
+
+        if start_time:
+            if start_time > end_time:
+                return Response({"message" : "날짜를 다시 확인하세요."}, status=status.HTTP_400_BAD_REQUEST)
+            q &= Q(timestamp__range = [f'{start_time} 00:00:00', f'{end_time} 23:59:59'])
+
+        if address:
+            q &= Q(restaurant__address__icontains = address)
 
         if min_price:
-            q &= Q(price__gte=min_price)
-        if max_price:
-            q &= Q(price__lte=max_price)
-        if min_party:
-            q &= Q(number_of_party__gte=min_party)
-        if max_party:
-            q &= Q(number_of_party__lte=max_party)
-        if group:
-            q &= Q(restaurant__group_id=group)
+            if max_price is None:
+                return Response({"message" : "가격을 다시 확인하세요."}, status=status.HTTP_400_BAD_REQUEST)
+            q &= Q(price__range = [min_price, max_price])
 
-        res = PosLog.objects.filter(q).annotate(date=TIME_FORM[timesize]).values('date')
+        if min_party:
+            if max_party is None:
+                return Response({"message" : "인원을 다시 확인하세요."}, status=status.HTTP_400_BAD_REQUEST)
+            q &= Q(number_of_party__range = [min_party, max_party])
 
         if payment:
-            # 결제수단 기준
-            res = res.annotate(count=Count('payment'))
-            if payment != 'all':
-                res = res.filter(payment=payment)
-            res = res.values('restaurant_id', 'count', "payment", "date")
-        elif num_of_party:
-            # 인원 기준
-            res = res.annotate(count=Count('number_of_party'))
-            if num_of_party != 'all':
-                res = res.filter(number_of_party=num_of_party)
-            res = res.values('restaurant_id', 'count', "number_of_party", "date")
-        else:
-            res = res.annotate(
-            time = TIME_FORM[timesize]
-        ).values('time').annotate(
-            restaurant_id = F('restaurant'),
-            total_price = Sum('price')
-        ).values('time', 'restaurant_id', 'total_price')
+            payment = payment.split(',')
+            q &= Q(payment__in = payment)
 
-        return Response(res, status=status.HTTP_200_OK)
+        time_form = {
+            'hour' : ExtractHour('timestamp'),
+            "day" : TruncDate('timestamp'),
+            "week" : TruncWeek('timestamp'),
+            "month" : ExtractMonth('timestamp'),
+            "year" : ExtractYear('timestamp')
+            }
+
+        base_query = PosLog.objects.filter(q).annotate(date = time_form[timesize]).values('date')
+
+        if payment:
+            base_query = (
+                base_query
+                .annotate(count = Count('id'))
+                .values('restaurant_id', 'payment', 'date', 'count')
+                )
+        elif min_party:
+            base_query = (
+                base_query
+                .annotate(count = Count('id'), total_price = Sum('price'))
+                .values('restaurant_id', 'number_of_party', 'date', 'count', 'total_price')
+                )
+        elif address or group_by:
+            base_query = (
+                base_query
+                .annotate(total_price = Sum('price'))
+                .values("date", 'total_price')
+                )
+        else:
+            base_query = (
+                base_query
+                .annotate(restaurant_id = F('restaurant'), total_price = Sum('price'))
+                .values('restaurant_id', 'date', 'total_price')
+                )
+        return Response(base_query, status=status.HTTP_200_OK)

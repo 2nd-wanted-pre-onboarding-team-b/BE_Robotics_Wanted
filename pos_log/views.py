@@ -80,7 +80,7 @@ class PosLogSearchView(APIView):
         restaurant = request.GET.get('restaurant')
         group = request.GET.get('group')
         start_time = request.GET.get('start-time')
-        end_time = request.GET.get('end-time', start_time)
+        end_time = request.GET.get('end-time', None)
         timesize = request.GET.get('timesize', None)
         address = request.GET.get('address')
         min_price = request.GET.get("min-price")

@@ -17,29 +17,52 @@ def Date(str):
 class PoslogListView(APIView):
     '''
     작성자 : 남기윤
+    (GET) /api/pos - pos_log LIST ALL
     (POST) /api/pos - pos_log CREATE API
     (GET) /api/pos? - 기간(필수),timesize(필수),가격,인원,그룹,정보를 받아 검색하는 API
     '''
+    def get(self, request):
+        data = PosLog.objects.all()
+        serializer = PosLogGetSerializer(data, many = True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
-class PosLogSearchView(APIView):
+class PoslogDetailView(APIView): 
     '''
-    확장 검색 API
-    (GET) /api/pos2
+    작성자 : 남기윤
+    (GET) /api/pos<int:id> - pos_log SHOWS TARGET
+    (PATCH) /api/pos<int:id> - pos_log UPDATES TARGET
+    (DELETE) /api/pos<int:id> - pos_log DELETES TARGET
     '''
-    def post(self, request):
-        '''
-        작성자: 남기윤
-        '''
+    def get(self, request, pos_id):
+        pos_log = get_object_or_404(PosLog, pk=pos_id)
+        serializer = PosLogGetSerializer(pos_log)
+        return Response(serializer.data)
+
+    def patch(self, request, pos_id):
         data = request.data
-        serializer = PosLogSerializer(data=data)
+        pos_log = get_object_or_404(PosLog, pk=pos_id)
+        serializer = PosLogSerializer(pos_log, data, partial=True)
         if serializer.is_valid(raise_exception=True):
             serializer.save()
             target_log = PosLog.objects.get(id=serializer.data['id'])
             for i in data['menu_list']:
                 data = PosLogMenu(pos_log=target_log, menu=Menu.objects.get(id=i['menu']), count=i['count'])
                 data.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, pos_id): 
+        pos_log = get_object_or_404(PosLog, pk=pos_id)
+        pos_log.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class PosLogSearchView(APIView):
+    '''
+    확장 검색 API
+    (GET) /api/pos/search
+    '''
+
 
     def get(self, request):
         """

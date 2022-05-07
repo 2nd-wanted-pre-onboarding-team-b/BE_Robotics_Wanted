@@ -10,12 +10,8 @@ from .serializers import PosLogSerializer, PosLogGetSerializer
 from django.db.models import Q, F, Sum, Count
 from django.db.models.functions import  TruncWeek, TruncDate, ExtractHour, ExtractMonth, ExtractYear
 
-import datetime
 
-def Date(str):
-    return datetime.datetime.strptime(str, '%Y-%m-%d').date()
-
-class PoslogListView(APIView): #
+class PoslogListView(APIView):
     '''
     작성자 : 남기윤
     (GET) /api/pos - pos_log LISTS ALL
@@ -41,9 +37,9 @@ class PoslogListView(APIView): #
 class PoslogDetailView(APIView): 
     '''
     작성자 : 남기윤
-    (GET) /api/pos<int:id> - SHOWS TARGET POSLOG
-    (PATCH) /api/pos<int:id> - UPDATES TARGET POSLOG
-    (DELETE) /api/pos<int:id> - DELETES TARGET POSLOG
+    (GET) /api/pos/<int:id> - SHOWS TARGET POSLOG
+    (PATCH) /api/pos/<int:id> - UPDATES TARGET POSLOG
+    (DELETE) /api/pos/<int:id> - DELETES TARGET POSLOG
 
     '''
     def get(self, request, pos_id):

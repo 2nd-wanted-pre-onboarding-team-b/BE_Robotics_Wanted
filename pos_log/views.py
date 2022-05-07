@@ -18,12 +18,12 @@ def Date(str):
 class PoslogListView(APIView): #
     '''
     작성자 : 남기윤
+    (GET) /api/pos - pos_log LIST ALL
     (POST) /api/pos - pos_log CREATE API
     '''
     def get(self, request):
         data = PosLog.objects.all()
         serializer = PosLogGetSerializer(data, many = True)
-        print(serializer.data)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request):
@@ -42,6 +42,12 @@ class PoslogListView(APIView): #
         return Response(status=status.HTTP_400_BAD_REQUEST)
 
 class PoslogDetailView(APIView): 
+    '''
+    작성자 : 남기윤
+    (GET) /api/pos<int:id> - pos_log SHOWS TARGET
+    (PATCH) /api/pos<int:id> - pos_log UPDATES TARGET
+    (DELETE) /api/pos<int:id> - pos_log DELETES TARGET
+    '''
     def get(self, request, pos_id):
         pos_log = get_object_or_404(PosLog, pk=pos_id)
         serializer = PosLogGetSerializer(pos_log)
@@ -62,8 +68,6 @@ class PoslogDetailView(APIView):
 
     def delete(self, request, pos_id): 
         pos_log = get_object_or_404(PosLog, pk=pos_id)
-        target_log = PosLogMenu.objects.filter(id=pos_log.data['id'])
-        target_log.delete()
         pos_log.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 

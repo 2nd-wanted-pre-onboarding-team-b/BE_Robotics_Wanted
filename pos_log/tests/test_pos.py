@@ -6,7 +6,7 @@ from restaurants.models import *
 from django.db import connection
 
 """
-Writer: 하정현 ,남기윤
+Writer: 하정현 ,남기윤, 최승리
 인원/결제수단 집계함수 테스트 코드
 """ 
 def load_data(groups, restaurants, logs, menus):
@@ -63,8 +63,8 @@ class TestExtensionSearcher(APITestCase):
         groups = ['g1', 'g2', 'g3', 'g4', 'g5']
         restaurants = [
             ['1','res_a1','city2','address1'],
-            ['1','res_b2','city1','address1'],
-            ['2','res_c1','city3','address1'],
+            ['1','res_b2','city1','관악구'],
+            ['2','res_c1','city3','관악구'],
             ['3','res_c2','city3','address1'],
             ['4','res_d2','city3','address1'],
             ['5','res_e1','city1','address1'],
@@ -353,7 +353,17 @@ class TestExtensionSearcher(APITestCase):
         self.assertEqual(res.status_code, 200)
         self.assertCountEqual(res.json(), answer)
 
-        
+    def test_address_sales(self):
+        req = {
+            "timesize" : "month", 
+            "start-time" : "2022-02-01",
+            "end-time" : "2022-02-28",
+            "address" : "관악구"
+        }
+        res = self.client.get(self.API, req)
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(res.json(), [{'date': 2, 'total_price': 12000}])
+
     def test_numofparty_all_month_2(self):
         req = {
             "start-time"    : "2022-03-01",
@@ -388,5 +398,5 @@ class TestExtensionSearcher(APITestCase):
                 }
             ]
         }
-        create_response = self.client.post('/api/pos/search', data=data, format='json') #정상적으로 생성됐을 때
+        create_response = self.client.post('/api/pos', data=data, format='json') #정상적으로 생성됐을 때
         self.assertEqual(create_response.status_code, status.HTTP_201_CREATED)

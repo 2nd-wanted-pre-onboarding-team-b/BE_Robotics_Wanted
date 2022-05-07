@@ -1,10 +1,11 @@
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from django.shortcuts import get_object_or_404
 
 from .models import PosLog, PosLogMenu
 from menu.models import Menu
-from .serializers import PosLogSerializer
+from .serializers import PosLogSerializer, PosLogGetSerializer
 
 from django.db.models import Q, F, Sum, Count
 from django.db.models.functions import  TruncWeek, TruncDate, ExtractHour, ExtractMonth, ExtractYear
@@ -14,24 +15,36 @@ import datetime
 def Date(str):
     return datetime.datetime.strptime(str, '%Y-%m-%d').date()
 
-class PoslogListView(APIView):
+class PoslogListView(APIView): #
     '''
     작성자 : 남기윤
-    (GET) /api/pos - pos_log LIST ALL
-    (POST) /api/pos - pos_log CREATE API
-    (GET) /api/pos? - 기간(필수),timesize(필수),가격,인원,그룹,정보를 받아 검색하는 API
+    (GET) /api/pos - pos_log LISTS ALL
+    (POST) /api/pos - pos_log CREATES API
     '''
     def get(self, request):
         data = PosLog.objects.all()
         serializer = PosLogGetSerializer(data, many = True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+    def post(self, request):
+        data = request.data
+        serializer = PosLogSerializer(data=data)
+        if serializer.is_valid(raise_exception=True):
+            serializer.save()
+            target_log = PosLog.objects.get(id=serializer.data['id'])
+            for i in data['menu_list']:
+                data = PosLogMenu(pos_log=target_log, menu=Menu.objects.get(id=i['menu']), count=i['count'])
+                data.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+
 class PoslogDetailView(APIView): 
     '''
     작성자 : 남기윤
-    (GET) /api/pos<int:id> - pos_log SHOWS TARGET
-    (PATCH) /api/pos<int:id> - pos_log UPDATES TARGET
-    (DELETE) /api/pos<int:id> - pos_log DELETES TARGET
+    (GET) /api/pos<int:id> - SHOWS TARGET POSLOG
+    (PATCH) /api/pos<int:id> - UPDATES TARGET POSLOG
+    (DELETE) /api/pos<int:id> - DELETES TARGET POSLOG
+
     '''
     def get(self, request, pos_id):
         pos_log = get_object_or_404(PosLog, pk=pos_id)
@@ -72,7 +85,6 @@ class PosLogSearchView(APIView):
         group = request.GET.get('group')
         start_time = request.GET.get('start-time')
         end_time = request.GET.get('end-time', start_time)
-        end_time = request.GET.get('end-time', None)
         timesize = request.GET.get('timesize', None)
         address = request.GET.get('address')
         min_price = request.GET.get("min-price")
@@ -142,7 +154,7 @@ class PosLogSearchView(APIView):
                 base_query
                 .annotate(total_price = Sum('price'))
                 .values("date", 'total_price')
-                )
+                ) 
         else:
             base_query = (
                 base_query

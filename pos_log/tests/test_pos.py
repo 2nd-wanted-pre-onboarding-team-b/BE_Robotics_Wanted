@@ -6,11 +6,10 @@ from restaurants.models import *
 from django.db import connection
 
 """
-Writer: 하정현
-
+Writer: 하정현 ,남기윤
 인원/결제수단 집계함수 테스트 코드
-"""
-def load_data(groups, restuarants, logs):
+""" 
+def load_data(groups, restaurants, logs, menus):
     """
     테스트 돌리기 전, DB에 테스트용 데이터 업로드
     """
@@ -23,7 +22,7 @@ def load_data(groups, restuarants, logs):
         g.save()
 
     # 식당 생성
-    for i, (gi, n, c, a) in enumerate(restuarants):
+    for i, (gi, n, c, a) in enumerate(restaurants):
         if gi == 'group_id':
             continue
         r = Restaurant(
@@ -46,9 +45,17 @@ def load_data(groups, restuarants, logs):
             cursor.execute(s)
         i += 1
 
+    for i, (mn, p, g) in enumerate(menus): #메뉴 생성
+        r = Menu(
+            group=Group.objects.get(id=int(g)),
+            price = p,
+            menu_name = mn
+        )
+        r.save()
+
 class TestExtensionSearcher(APITestCase):
 
-    API = "/api/pos"
+    API = "/api/pos/search"
 
     @classmethod
     def setUpTestData(cls):
@@ -74,7 +81,14 @@ class TestExtensionSearcher(APITestCase):
             ['2022-03-13 10:43:00','3','4000','4','BITCOIN'],
             ['2023-04-22 20:44:00','1','3000','2','CASH']
         ]
-        load_data(groups, restaurants, logs)
+        menus = [
+            #메뉴명, 가격, 그룹 아이디
+            ['menu1','1000','1'],
+            ['menu2','2000','1'],
+            ['menu3','3000','2'],
+        ]
+
+        load_data(groups, restaurants, logs, menus)
 
     def test_omit_nessary(self):
         """
@@ -356,3 +370,23 @@ class TestExtensionSearcher(APITestCase):
         res = self.client.get(self.API, req)
         self.assertEqual(res.status_code, 200)
         self.assertCountEqual(res.json(), answer)
+
+    def test_CRUD(self): 
+        data = {
+            "restaurant" : Restaurant.objects.get(restaurant_name="res_a1").id,
+            "price" : 100000,
+            "number_of_party" : 1,
+            "payment" : "CASH",
+            "menu_list" : [
+                {
+                    "menu":Menu.objects.get(menu_name="menu1").id,
+                    "count":1
+                },
+                {
+                    "menu": Menu.objects.get(menu_name="menu2").id,
+                    "count":3
+                }
+            ]
+        }
+        create_response = self.client.post('/api/pos/search', data=data, format='json') #정상적으로 생성됐을 때
+        self.assertEqual(create_response.status_code, status.HTTP_201_CREATED)

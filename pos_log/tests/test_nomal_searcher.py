@@ -12,6 +12,7 @@ def Date(str):
 #미리 정의하지 않는다면 Django가 자동으로 {default 세팅에 작성한 이름}_test 로 테스트용 데이터베이스를 생성함
 '''
 작성자 : 남기윤
+Reviewer: 하정현
 '''
 class PosLogTestCase(APITestCase):
     
@@ -49,43 +50,48 @@ class PosLogTestCase(APITestCase):
             price = 200000,
         )
         #테스트용 poslog데이터 생성
-        PosLog.objects.create(
-            timestamp = Date("2022-02-01"),
+        p = PosLog.objects.create(
             price = 1000,
             number_of_party = 2,
             payment = "CARD",
             restaurant_id = self.restaurant1_data.id,
-        ) 
+        )
+        p.timestamp = Date("2022-02-01")
+        p.save()
         #correct
-        PosLog.objects.create(
-            timestamp = Date("2022-02-02"),
+        p = PosLog.objects.create(
             price = 10000,
             number_of_party = 3,
             payment = "CARD",
             restaurant_id = self.restaurant2_data.id,
         )
+        p.timestamp = Date("2022-02-02")
+        p.save()
         #correct
-        PosLog.objects.create(
-            timestamp = Date("2022-02-02"),
+        p = PosLog.objects.create(
             price = 100002,
             number_of_party = 3,
             payment = "CARD",
             restaurant_id = self.restaurant1_data.id,
         ) #not correct (가격)
-        PosLog.objects.create(
-            timestamp = Date("2022-02-02"),
+        p.timestamp = Date("2022-02-02")
+        p.save()
+        p = PosLog.objects.create(
             price = 10003,
             number_of_party = 5,
             payment = "CARD",
             restaurant_id = self.restaurant1_data.id,
         ) #not correct (인원)
-        PosLog.objects.create(
-            timestamp = Date("2022-02-02"),
+        p.timestamp = Date("2022-02-02")
+        p.save()
+        p = PosLog.objects.create(
             price = 10004,
             number_of_party = 3,
             payment = "CARD",
             restaurant_id = self.not_restaurant_data.id,
         ) #not correct (그룹)
+        p.timestamp = Date("2022-02-02")
+        p.save()
 
     def test_correct_create(self): #정상적으로 생성됐을 때
         data = {
@@ -110,17 +116,21 @@ class PosLogTestCase(APITestCase):
     def test_correct_post_nomal(self):
         data = [
             {
-                "time": "2022-05-04",
+                "date": "2022-02-01",
                 "restaurant_id": self.restaurant1_data.id,
                 "total_price": 1000,
+                'number_of_party': 2,
+                'count': 1,
             },
             {
-                "time": "2022-05-04",
+                "date": "2022-02-02",
                 "restaurant_id": self.restaurant2_data.id,
                 "total_price": 10000,
+                'number_of_party': 3,
+                'count': 1,
             }
         ]
-        response = self.client.get(f"/api/pos?start-time=2022-05-03&end-time=2022-05-06&timesize=day&min-price=100&max-price=50000&group={self.group_data.id}&min-party=2&max-party=3")
+        response = self.client.get(f"/api/pos?start-time=2022-02-01&end-time=2022-02-02&timesize=day&min-price=100&max-price=50000&group={self.group_data.id}&min-party=2&max-party=3")
         
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertCountEqual(response.json(), data)

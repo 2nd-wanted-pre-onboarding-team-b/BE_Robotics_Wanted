@@ -26,7 +26,24 @@
 ## Directory Info.
 
 ```
-#여기에 최종 디렉토리의 tree를 입력해주세요.
+├─menu
+│  ├─migrations
+│  │  └─__pycache__
+│  └─__pycache__
+├─point_of_sale
+│  ├─settings
+│  │  └─__pycache__
+│  └─__pycache__
+├─pos_log
+│  ├─migrations    
+│  │  └─__pycache__
+│  ├─tests
+│  │  └─__pycache__
+│  └─__pycache__
+└─restaurants
+    ├─migrations
+    │  └─__pycache__
+    └─__pycache__
 ```
 
 

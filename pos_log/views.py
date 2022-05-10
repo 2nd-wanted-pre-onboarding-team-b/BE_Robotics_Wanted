@@ -79,16 +79,16 @@ class PosLogSearchView(APIView):
         """
         restaurant = request.GET.get('restaurant')
         group = request.GET.get('group')
-        start_time = request.GET.get('start-time')
-        end_time = request.GET.get('end-time', None)
+        start_time = request.GET.get('start_time')
+        end_time = request.GET.get('end_time', None)
         timesize = request.GET.get('timesize', None)
         address = request.GET.get('address')
-        min_price = request.GET.get("min-price")
-        max_price = request.GET.get("max-price", None)
-        min_party = request.GET.get("min-party")
-        max_party = request.GET.get("max-party", None)
+        min_price = request.GET.get("min_price")
+        max_price = request.GET.get("max_price", None)
+        min_party = request.GET.get("min_party")
+        max_party = request.GET.get("max_party", None)
         payment = request.GET.get("payment")
-        group_by = request.GET.get("group-by", None)
+        group_by = request.GET.get("group_by", None)
 
         q = Q()
         # 과도한 쿼리가 작동하는 것을 방지하기 위해 시간범위는 필수 지정

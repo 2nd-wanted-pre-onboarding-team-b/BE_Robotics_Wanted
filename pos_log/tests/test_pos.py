@@ -96,17 +96,17 @@ class TestExtensionSearcher(APITestCase):
         """
 
         # omit start time
-        req = {"end-time": "2022-04-07", "timesize": "hour"}
+        req = {"end_time": "2022-04-07", "timesize": "hour"}
         self.assertEqual(
             self.client.get(self.API, req).status_code, 400)
 
         # omit end time
-        req = {"start-time": "2022-04-07", "timesize": "hour"}
+        req = {"start_time": "2022-04-07", "timesize": "hour"}
         self.assertEqual(
             self.client.get(self.API, req).status_code, 400)
 
         # omit timesize
-        req = {"start-time": "2022-04-07", "end-time": "2022-04-07"}
+        req = {"start_time": "2022-04-07", "end_time": "2022-04-07"}
         self.assertEqual(
             self.client.get(self.API, req).status_code, 400)
 
@@ -116,8 +116,8 @@ class TestExtensionSearcher(APITestCase):
         """
 
         req = {
-            "start-time"    : "2022-04-05",
-            "end-date"      : "???",
+            "start_time"    : "2022-04-05",
+            "end_time"      : "???",
             "timesize"      : "hour"
         }
         self.assertEqual(
@@ -125,15 +125,15 @@ class TestExtensionSearcher(APITestCase):
             msg="end date의 데이터가 알맞지 않음")
 
         # 이상한 timesize
-        req['end-date'] = '2022-05-01'
+        req['end_time'] = '2022-05-01'
         req['timesize'] = 'mayday'
         self.assertEqual(
             self.client.get(self.API, req).status_code, 400,
             msg="엉뚱한 timesize")
 
         req = {
-            "start-time"    : "2022-04-05",
-            "end-date"      : "2022-05-01",
+            "start_time"    : "2022-04-05",
+            "end_time"      : "2022-05-01",
             "timesize"      : 3478392
         }
         self.assertEqual(
@@ -142,8 +142,8 @@ class TestExtensionSearcher(APITestCase):
         
 
         req = {
-            "start-time"    : "2022-04-",
-            "end-date"      : "2022-05-01",
+            "start_time"    : "2022-04-",
+            "end_time"      : "2022-05-01",
             "timesize"      : "hour"
         }
         self.assertEqual(
@@ -151,8 +151,8 @@ class TestExtensionSearcher(APITestCase):
             msg="timeformat 상태가 안좋음")
 
         req = {
-            "start-time"    : "2022-04-35",
-            "end-date"      : "2022-05-41",
+            "start_time"    : "2022-04-35",
+            "end_time"      : "2022-05-41",
             "timesize"      : "hour"
         }
         self.assertEqual(
@@ -160,8 +160,8 @@ class TestExtensionSearcher(APITestCase):
             msg="datetime 수치가 비정상")
 
         req = {
-            "start-time"    : "2022-04-05",
-            "end-date"      : "2022-04-04",
+            "start_time"    : "2022-04-05",
+            "end_time"      : "2022-04-04",
             "timesize"      : "hour"
         }
         self.assertEqual(
@@ -172,8 +172,8 @@ class TestExtensionSearcher(APITestCase):
     def test_payment_all_day(self):
 
         req = {
-            "start-time"    : "2022-01-10",
-            "end-time"      : "2023-04-22",
+            "start_time"    : "2022-01-10",
+            "end_time"      : "2023-04-22",
             "timesize"      : "day",
             "payment"       : "CARD,BITCOIN,CASH,PHONE"
         }
@@ -194,8 +194,8 @@ class TestExtensionSearcher(APITestCase):
 
     def test_payment_all_hour(self):
         req = {
-            "start-time"    : "2022-01-10",
-            "end-time"      : "2023-05-25",
+            "start_time"    : "2022-01-10",
+            "end_time"      : "2023-05-25",
             "timesize"      : "hour",
             "payment"       : "CARD,BITCOIN,CASH,PHONE" 
         }
@@ -214,8 +214,8 @@ class TestExtensionSearcher(APITestCase):
 
     def test_payment_all_year(self):
         req = {
-            "start-time"    : "2022-01-10",
-            "end-time"      : "2023-05-25",
+            "start_time"    : "2022-01-10",
+            "end_time"      : "2023-05-25",
             "timesize"      : "year",
             "payment"       : "CARD,BITCOIN,CASH,PHONE"
         }
@@ -237,8 +237,8 @@ class TestExtensionSearcher(APITestCase):
         """ 범위를 2023으로 좁힘
         """
         req = {
-            "start-time"    : "2023-03-10",
-            "end-time"      : "2023-05-25",
+            "start_time"    : "2023-03-10",
+            "end_time"      : "2023-05-25",
             "timesize"      : "year",
             "payment"       : "CARD,BITCOIN,CASH,PHONE"
         }
@@ -251,8 +251,8 @@ class TestExtensionSearcher(APITestCase):
 
     def test_payment_card_day(self):
         req = {
-            "start-time"    : "2022-01-10",
-            "end-time"      : "2023-05-25",
+            "start_time"    : "2022-01-10",
+            "end_time"      : "2023-05-25",
             "timesize"      : "day",
             "payment"       : "CARD"
         }
@@ -266,8 +266,8 @@ class TestExtensionSearcher(APITestCase):
 
     def test_numofparty_all_day(self):
         req = {
-            "start-time"    : "2022-01-10",
-            "end-time"      : "2023-05-25",
+            "start_time"    : "2022-01-10",
+            "end_time"      : "2023-05-25",
             "timesize"      : "day",
             "min-party"     : 1,
             "max-party"     : 10,
@@ -289,8 +289,8 @@ class TestExtensionSearcher(APITestCase):
 
     def test_numofparty_all_hour(self):
         req = {
-            "start-time"    : "2022-01-10",
-            "end-time"      : "2023-05-25",
+            "start_time"    : "2022-01-10",
+            "end_time"      : "2023-05-25",
             "timesize"      : "hour",
             "min-party"     : 1,
             "max-party"     : 10,
@@ -312,8 +312,8 @@ class TestExtensionSearcher(APITestCase):
 
     def test_numofparty_all_year(self):
         req = {
-            "start-time"    : "2022-01-10",
-            "end-time"      : "2023-05-25",
+            "start_time"    : "2022-01-10",
+            "end_time"      : "2023-05-25",
             "timesize"      : "year",
             "min-party"     : 1,
             "max-party"     : 10,
@@ -334,8 +334,8 @@ class TestExtensionSearcher(APITestCase):
 
     def test_numofparty_all_month(self):
         req = {
-            "start-time"    : "2022-01-10",
-            "end-time"      : "2023-05-25",
+            "start_time"    : "2022-01-10",
+            "end_time"      : "2023-05-25",
             "timesize"      : "month",
             "min-party"     : 1,
             "max-party"     : 10,
@@ -356,8 +356,8 @@ class TestExtensionSearcher(APITestCase):
     def test_address_sales(self):
         req = {
             "timesize" : "month", 
-            "start-time" : "2022-02-01",
-            "end-time" : "2022-02-28",
+            "start_time" : "2022-02-01",
+            "end_time" : "2022-02-28",
             "address" : "관악구"
         }
         res = self.client.get(self.API, req)
@@ -366,8 +366,8 @@ class TestExtensionSearcher(APITestCase):
 
     def test_numofparty_all_month_2(self):
         req = {
-            "start-time"    : "2022-03-01",
-            "end-time"      : "2023-05-25",
+            "start_time"    : "2022-03-01",
+            "end_time"      : "2023-05-25",
             "timesize"      : "month",
             "min-party"     : 1,
             "max-party"     : 10,

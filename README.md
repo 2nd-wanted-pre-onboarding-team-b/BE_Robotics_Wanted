@@ -1,16 +1,17 @@
 ![image](https://user-images.githubusercontent.com/88444944/166816713-e28a22d2-b256-4429-a582-4c14867874fd.png)
 
 
-# Wanted team_B #2베어로보틱스 기업과제 #
-\
+# Wanted team_B #2베어로보틱스 기업과제  
+
 주어진 데이터 셋을 요구사항 대로 서빙하기 위한 관계형 데이터베이스 테이블을 설계하고,\
 주어진 기능을 제공하는 REST API 서버를 개발합니다.
 
 
 ## Team process:
 
-### Team 분업
-
+### Team 분업  ###  
+  
+  #
 |성명|업무|비고|
 |------|---|---|
 |최승리|점포명없이 조회가능한 API, 프랜차이즈의 메뉴기준 집계 API작성 및 테스트코드/ 기획|팀장⭐ |
@@ -26,9 +27,33 @@
 ## Directory Info.
 
 ```
-#여기에 최종 디렉토리의 tree를 입력해주세요.
+├─menu                      -menu add 디렉토리
+│  ├─migrations
+│  │  └─__pycache__
+│  └─__pycache__
+├─point_of_sale             -프로젝트 main configure
+│  ├─settings
+│  │  └─__pycache__
+│  └─__pycache__
+├─pos_log                   -poslog CRUD 및 검색 add 디렉토리
+│  ├─migrations    
+│  │  └─__pycache__
+│  ├─tests                  -unit test 디렉토리
+│  │  └─__pycache__
+│  └─__pycache__
+└─restaurants               -restaurant add 디렉토리
+    ├─migrations
+    │  └─__pycache__
+    └─__pycache__
 ```
+## 실행 안내
 
+```
+#앱 실행
+$python manage.py runserver --settings=point_of_sale.settings.local
+#테스트 실행
+$python manage.py test --settings=point_of_sale.settings.local 
+```
 
 ## 베어로보틱스 project 요구사항 분석
 \
@@ -75,24 +100,70 @@ from POS does not have id.
 ## API info.
 
 ### 점포 POS 결제기록 API
-* 점포 ID, 가격, 인원, 결제수단, **판매된 메뉴의 리스트** 를 DB에 저장합니다.(method:POST)
-![image](https://user-images.githubusercontent.com/88444944/166812036-3f338398-1809-4177-bfbd-bbc09f73d5f0.png)
-![image](https://user-images.githubusercontent.com/88444944/166812187-0561f07a-d7c9-43ed-8fe7-6e8ff9741673.png)
+* 점포 ID, 가격, 인원, 결제수단, **판매된 메뉴의 리스트** 를 DB에 저장합니다.(url:"api/pos" method:POST) 전체조회:(url:"api/pos" method:GET)
+* RUD 기능 = api/pos<int:pos_id>  read:GET, update:PATCH, delete: DELETE
+```
+#input eg.
+{
+    "restaurant" : 21,
+    "price" : 5000,
+    "number_of_party" : 1,
+    "payment" : "CASH",
+    "menu_list" : [
+        {
+            "menu":2,
+            "count":1
+        },
+        {
+            "menu":1,
+            "count":3
+        }
+    ]
+    }
+```
 
 ### 점포별 KPI 집계 API
 * 기간(필수), timesize(필수, 집계기준단위), 가격범위, 인원범위, 그룹id를 입력받아 해당하는 통계를 출력합니다.(method:GET)
-![image](https://user-images.githubusercontent.com/88444944/166812959-94b2a7b3-682a-42f1-bed6-c3d1974e2d17.png)
-
+```
+#input eg.
+/api/pos?start-time=2022-02-23&end-time=2022-02-26&timesize=day&min-price=100&max-price=50000&group=1&min-party=1&max-party=4
+```
 * 기본 방식에서 결제방식 파라미터를 추가로 받아 해당하는 통계를 출력합니다.(method:GET)
-![image](https://user-images.githubusercontent.com/88444944/166813165-d5928593-2d44-44b4-bc5d-5aa66bf88a90.png)
-
+```
+#input eg.
+/api/pos?start-time=2022-02-23&end-time=2022-02-26&timesize=day&min-price=100&max-price=50000&group=1&min-party=1&max-party=4&payment=all
+```
 * 기본 방식에서 인원 파라미터를 추가로 받아 해당하는 통계를 출력합니다.(method:GET)
-![image](https://user-images.githubusercontent.com/88444944/166813668-ae895ace-9ae5-48ec-8024-c6cdb545e364.png)
+```
+#input eg.
+/api/pos?start-time=2022-02-23&end-time=2022-02-26&timesize=day&min-price=100&max-price=50000&group=1&min-party=1&max-party=4&number-of-party=2
+```
+* 기본 방식에서 **주소**를 추가로 받아 해당하는 통계를 출력합니다.(method:GET)
+```
+#input eg.
+/api/pos?start-time=2022-02-23&end-time=2022-02-26&timesize=day&min-price=100&max-price=50000&group=1&min-party=1&max-party=4&adress="성북구"
+```
+### 메뉴별 집계 API
 
-### 메뉴별, 주소별 집계 API
+* 메뉴데이터 CRUD (url:"api/menu")
+#input eg.
+{
+    "menu_name" : "갈비찜",
+    "price" : 5000,
+    "group" : 1,
+}
+```
+* 기간, 메뉴리스트, 정렬기준을 인자로 받아 메뉴별 판매를 비교합니다. (url:"api/menu/sales")
+```
+#input eg.
+/api/menu/sales?start-time=2022-02-23&end-time=2022-02-26&menu_list="갈비찜,싸이버거"
+```
+### 점포데이터 CRUD
+*점포정보를 CRUD합니다. 
+```
+#input eg.
 
-* 여기에 내용을 추가해주세요
-
+```
 ## DB info.
 
 ![image](https://user-images.githubusercontent.com/88444944/166816865-ad38ade0-7449-4f25-8588-36b02b95bdd6.png)

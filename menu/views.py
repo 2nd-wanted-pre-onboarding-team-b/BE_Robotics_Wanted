@@ -21,9 +21,9 @@ class MenuSalesView(APIView):
     작성자 : 최승리
     '''
     def get(self, request):
-        start_time = request.GET.get('start-time')
-        end_time = request.GET.get('end-time', start_time)
-        menu_list = request.GET.get('menu-list', None)
+        start_time = request.GET.get('start_time')
+        end_time = request.GET.get('end_time')
+        menu_list = request.GET.get('menu_list', None)
         order = request.GET.get('order', '-total_price')
 
         try:

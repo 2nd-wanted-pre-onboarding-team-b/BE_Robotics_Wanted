@@ -157,13 +157,26 @@ from POS does not have id.
 ```
 #input eg.
 /api/menu/sales?start-time=2022-02-23&end-time=2022-02-26&menu_list="갈비찜,싸이버거"
-```
-### 점포데이터 CRUD
-*점포정보를 CRUD합니다. 
-```
-#input eg.
 
+
+### 점포데이터 CRUD
+
+* 점포정보를 CRUD합니다.
+* 점포 정보를 추가합니다. (url:"api/restaurants/create", method:POST)
+* 점포 정보를 가져옵니다. (url: "api/restaurants/<점포 ID>", method:GET)
+* 점포 정보를 수정합니다. (url: "api/restaurants/<점포 ID>", method:PATCH)
+* 점포 정보를 제거합니다. (url: "api/restaurants/<점포 ID>", method:DELETE)
 ```
+#input.eg
+{
+  "group": 1,
+  "restaurant_name": "점포 1"
+  "city": "서울",
+  "address": "남구 XXX로 125번"
+}
+```
+
+
 ## DB info.
 
 ![image](https://user-images.githubusercontent.com/88444944/166816865-ad38ade0-7449-4f25-8588-36b02b95bdd6.png)

@@ -146,6 +146,7 @@ from POS does not have id.
 ### 메뉴별 집계 API
 
 * 메뉴데이터 CRUD (url:"api/menu")
+```
 #input eg.
 {
     "menu_name" : "갈비찜",
@@ -153,11 +154,12 @@ from POS does not have id.
     "group" : 1,
 }
 ```
+
 * 기간, 메뉴리스트, 정렬기준을 인자로 받아 메뉴별 판매를 비교합니다. (url:"api/menu/sales")
 ```
 #input eg.
 /api/menu/sales?start-time=2022-02-23&end-time=2022-02-26&menu_list="갈비찜,싸이버거"
-
+```
 
 ### 점포데이터 CRUD
 
